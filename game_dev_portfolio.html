@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Umi-_-Projects</title>
+  <style>
+    :root{
+      --bg:#2b0000; /* dark red */
+      --card:#3f0000;
+      --muted:#ff9999;
+      --text:#ffe6e6;
+      --accent:#ff4d4d; /* bright red */
+      --radius:14px;
+      --maxw:1000px;
+    }
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+      padding:30px 20px;
+    }
+    .wrap{max-width:var(--maxw);margin:0 auto}
+    header{text-align:center;margin-bottom:40px}
+    header h1{font-size:2.4rem;margin:0;color:var(--accent)}
+    nav{margin-top:12px}
+    nav a{color:var(--muted);margin:0 10px;text-decoration:none;font-weight:600}
+    section{margin:40px 0}
+    h2{color:var(--accent);margin-bottom:16px}
+    .card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,0.6)}
+    .project{margin-bottom:20px}
+    .btn{display:inline-block;margin-top:10px;padding:10px 16px;background:var(--accent);color:white;font-weight:700;border-radius:10px;text-decoration:none}
+    footer{text-align:center;margin-top:40px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Umi</h1>
+      <nav>
+        <a href="#about">About Me</a>
+        <a href="#projects">Projects</a>
+        <a href="#forgotten">Forgotten Stuff</a>
+      </nav>
+    </header>
+
+    <section id="about">
+      <h2>About Me</h2>
+      <div class="card">
+        <p>Hello! I’m Umi, a passionate game developer. I love creating unique and fun experiences across PC and Android platforms. My focus is on quirky, experimental games that make people smile.</p>
+      </div>
+    </section>
+
+    <section id="projects">
+      <h2>Projects</h2>
+      <div class="card project">
+        <h3>doodoofart gaem</h3>
+        <p>Coming soon for Android, iOS, and PC.</p>
+      </div>
+      <div class="card project">
+        <h3>Error.exe Demo</h3>
+        <p>A glitch-themed RPG demo where you play as a CPU upgrading RAM and battling viruses.</p>
+        <a class="btn" href="https://loot-link.com/s?Jeq2R60D">Download ErrorDemo.exe</a>
+      </div>
+    </section>
+
+    <section id="forgotten">
+      <h2>Forgotten Stuff</h2>
+      <div class="card project">
+        <h3>Umi's Mod</h3>
+        <p>A meme survival FPS inspired by Garry's Mod Nextbot chases. This project has been moved here as it’s no longer in active development.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>© 2025 Umi. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>
