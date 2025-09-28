@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bouncy Ball 3 — Prototype</title>
+<style>
+  html,body{height:100%;margin:0;background:#0b1020;color:#e6f0ff;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+  #game{display:block;margin:0 auto;background:linear-gradient(#111827,#0b1220);touch-action:none}
+  .ui {
+    position:fixed; left:12px; top:12px; z-index:4;
+    background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:10px;
+    backdrop-filter: blur(4px);
+  }
+  .ui button{margin-left:8px}
+  #hint{position:fixed; right:12px; top:12px; color:#cfe; background:rgba(0,0,0,0.18); padding:8px 12px; border-radius:10px}
+  #footer{position:fixed; bottom:10px; left:50%; transform:translateX(-50%); color:#aab; font-size:13px}
+</style>
+</head>
+<body>
+<div class="ui">
+  Score: <span id="score">0</span>
+  <button id="pauseBtn">Pause</button>
+  <button id="restartBtn">Restart</button>
+</div>
+<div id="hint">Arrows / A D to move. Tap left/right on mobile.</div>
+<canvas id="game" width="480" height="800"></canvas>
+<div id="footer">Bouncy Ball 3 — Prototype</div>
+
+<script>
+(() => {
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d', { alpha: false });
+let W = canvas.width = Math.min(480, Math.max(360, innerWidth*0.95));
+let H = canvas.height = Math.min(900, innerHeight*0.92);
+
+window.addEventListener('resize', () => {
+  W = canvas.width = Math.min(480, Math.max(360, innerWidth*0.95));
+  H = canvas.height = Math.min(900, innerHeight*0.92);
+});
+
+const scoreEl = document.getElementById('score');
+const pauseBtn = document.getElementById('pauseBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+let keys = {};
+addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+// Simple touch controls: divide screen into left/right halves
+canvas.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  if (!t) return;
+  touchActive = true;
+  touchX = t.clientX;
+  e.preventDefault();
+}, {passive:false});
+canvas.addEventListener('touchmove', e => {
+  const t = e.touches[0];
+  if (!t) return;
+  touchX = t.clientX;
+}, {passive:false});
+canvas.addEventListener('touchend', e => { touchActive = false; touchX = null; }, {passive:false});
+
+let lastTime = 0;
+let dt = 0;
+let paused = false;
+let gameOver = false;
+let score = 0;
+let highScore = localStorage.getItem('bouncy3_hs')|0;
+
+pauseBtn.onclick = () => { paused = !paused; pauseBtn.textContent = paused ? 'Resume' : 'Pause'; };
+restartBtn.onclick = resetGame;
+
+let touchActive = false, touchX = null;
+
+// Entities
+const player = {
+  x: W/2, y: H-120, r: 18,
+  vx: 0, vy: -6, // player auto-bounces upward initially
+  onPlatform: false, color: '#ffd868'
+};
+
+const gravity = 0.35;
+const friction = 0.98;
+let cameraY = 0; // how far we've ascended
+
+let platforms = [];
+let enemies = [];
+let particles = [];
+
+// Utilities
+function rand(a,b){ return Math.random()*(b-a)+a; }
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function circleCollide(a,b){ const dx=a.x-b.x, dy=a.y-b.y, r=a.r+b.r; return dx*dx+dy*dy < r*r; }
+
+// Initialize level with platforms
+function initPlatforms() {
+  platforms = [];
+  const gap = 80;
+  for (let i=0; i<12; i++){
+    platforms.push({
+      x: rand(40, W-90), y: H - i*gap - 40,
+      w: rand(60, 120), h: 12,
+      type: 'normal',
+      vx: 0, dir: 1, tick: 0, color: '#88c0ff'
+    });
+  }
+}
+
+function spawnPlatform(y) {
+  const types = ['normal','bouncy','moving','vanish'];
+  const type = Math.random() < 0.05 ? 'bouncy' : (Math.random() < 0.12 ? 'moving' : 'normal');
+  const w = rand(60,130);
+  platforms.push({
+    x: rand(40, W-w-20), y, w, h:12, type, vx: rand(0.6,1.8)*(Math.random()<0.5?-1:1),
+    dir:1, tick:0, color: type==='bouncy'?'#ffd868':'#88c0ff', alpha:1, vanishTick:0
+  });
+}
+
+// Enemy ball
+function spawnEnemy(y) {
+  const r = rand(12, 22);
+  enemies.push({
+    x: Math.random() < 0.5 ? -r-10 : W + r+10, // spawn offscreen left or right
+    y: y - rand(50, 200),
+    vx: rand(2,4)*(Math.random()<0.5?1:-1),
+    vy: rand(-6, -2),
+    r, color: '#ff6b6b',
+    bounce: 0.8 + Math.random()*0.2
+  });
+}
+
+// Particles
+function makeParticles(x,y,color,n=10){
+  for(let i=0;i<n;i++){
+    particles.push({
+      x,y,vx:rand(-3,3),vy:rand(-5,1),life:rand(30,80),size:rand(1,4),color
+    });
+  }
+}
+
+// Reset
+function resetGame() {
+  score = 0; scoreEl.textContent = score;
+  player.x = W/2; player.y = H-120; player.vx = 0; player.vy = -8;
+  cameraY = 0;
+  enemies = [];
+  particles = [];
+  initPlatforms();
+  gameOver = false;
+}
+
+// Game loop
+initPlatforms();
+resetGame();
+
+function update(t){
+  if (!lastTime) lastTime = t;
+  dt = (t - lastTime) / 16.6667;
+  lastTime = t;
+  if (!paused && !gameOver){
+    step(dt);
+  }
+  render();
+  requestAnimationFrame(update);
+}
+
+// game step
+function step(dt){
+  // Controls: left/right keyboard or touch
+  let move = 0;
+  if (keys['arrowleft'] || keys['a']) move = -1;
+  if (keys['arrowright'] || keys['d']) move = 1;
+  if (touchActive && touchX !== null) move = (touchX < innerWidth/2) ? -1 : 1;
+  player.vx += move * 0.7;
+  player.vx *= friction;
+  player.vy += gravity;
+
+  // cap speeds
+  player.vx = clamp(player.vx, -10, 10);
+  player.vy = clamp(player.vy, -25, 25);
+
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // wrap horizontally
+  if (player.x < -player.r) player.x = W + player.r;
+  if (player.x > W + player.r) player.x = -player.r;
+
+  // camera follows player upward (we want endless ascension)
+  if (player.y < H*0.4) {
+    const dy = (H*0.4 - player.y);
+    player.y += dy; // gently push back so player feels upward motion
+    cameraY += dy;
+    score = Math.floor(cameraY/10);
+    scoreEl.textContent = score;
+  }
+
+  // Platforms update & collisions
+  for (let p of platforms){
+    // moving platforms drift horizontally
+    if (p.type === 'moving'){
+      p.x += p.vx;
+      if (p.x < 10 || p.x + p.w > W-10) p.vx *= -1;
+    }
+    // vanish logic
+    if (p.type === 'vanish' && p.vanishTick > 0){
+      p.vanishTick--;
+      p.alpha = p.vanishTick/60;
+    }
+  }
+
+  // Check landings: only when falling
+  if (player.vy > 0) {
+    for (let p of platforms){
+      const px = p.x, py = p.y - cameraY + H - (H - cameraY); // not used
+      // convert p.y (world) to screen: screenY = p.y - cameraY + offset (we used cameraY as total ascent)
+      const screenPY = p.y - cameraY + H - H; // simplified ->  p.y - cameraY
+      // simpler: check using world coordinates (player.y and p.y are same world space because we moved player.y when camera moved)
+      if (player.y + player.r > p.y && player.y - player.r < p.y + p.h) {
+        if (player.x + player.r > p.x && player.x - player.r < p.x + p.w) {
+          if (player.vy > 0 && player.y < p.y + p.h + 10) {
+            // landed
+            if (p.type === 'vanish'){
+              p.vanishTick = 60;
+              p.type = 'vanished';
+            }
+            if (p.type === 'bouncy'){
+              player.vy = -12;
+              makeParticles(player.x, player.y, '#ffd868', 12);
+            } else {
+              player.vy = -10;
+            }
+            player.onPlatform = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // If player falls below screen (i.e., drops too far behind camera) => game over
+  if (player.y - cameraY > H + 80) {
+    gameOver = true;
+    if (score > highScore){ highScore = score; localStorage.setItem('bouncy3_hs', highScore); }
+    setTimeout(()=> alert(`Game Over!\nScore: ${score}\nHigh Score: ${highScore}`), 50);
+  }
+
+  // Spawn new platforms above view as player ascends
+  while (platforms.length < 14 + Math.floor(score/200)) {
+    // set highest existing y
+    let minY = Infinity;
+    for (let p of platforms) if (p.y < minY) minY = p.y;
+    spawnPlatform(minY - rand(60, 120));
+  }
+
+  // Remove platforms far below camera
+  platforms = platforms.filter(p => p.y - cameraY < H + 200);
+
+  // Spawn enemies gradually with increasing difficulty
+  if (Math.random() < 0.02 + Math.min(score/5000, 0.06)) {
+    const topY = cameraY - 100;
+    spawnEnemy(topY);
+  }
+
+  // Update enemies physics
+  for (let e of enemies){
+    e.vy += gravity * (0.9 + (score/10000));
+    e.x += e.vx;
+    e.y += e.vy;
+
+    // Bounce on floor/ceiling relative to cameraY
+    const worldFloor = cameraY + H;
+    if (e.y + e.r > worldFloor) { e.y = worldFloor - e.r; e.vy = -Math.abs(e.vy) * e.bounce; e.vx *= 0.99; }
+    if (e.y - e.r < cameraY - 300) { e.y = cameraY - 300 + e.r; e.vy *= -1; }
+
+    // reflect off sides
+    if (e.x - e.r < 0) { e.x = e.r; e.vx *= -1; }
+    if (e.x + e.r > W) { e.x = W - e.r; e.vx *= -1; }
+
+    // enemy-platform collisions — simple: if near platform, bounce
+    for (let p of platforms){
+      if (e.y + e.r > p.y && e.y - e.r < p.y + p.h){
+        if (e.x + e.r > p.x && e.x - e.r < p.x + p.w){
+          if (e.vy > 0) { e.y = p.y - e.r; e.vy = -Math.abs(e.vy) * e.bounce; }
+        }
+      }
+    }
+  }
+
+  // Enemy-player collisions
+  for (let i=enemies.length-1;i>=0;i--){
+    const e = enemies[i];
+    if (circleCollide({x:player.x,y:player.y,r:player.r}, e)){
+      // hit -> game over
+      makeParticles(player.x, player.y, '#ff6b6b', 30);
+      gameOver = true;
+      if (score > highScore){ highScore = score; localStorage.setItem('bouncy3_hs', highScore); }
+      break;
+    }
+  }
+
+  // Particles update
+  for (let i=particles.length-1;i>=0;i--){
+    const p = particles[i];
+    p.vy += 0.12;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+    if (p.life <=0) particles.splice(i,1);
+  }
+
+  // remove enemies too far below camera
+  enemies = enemies.filter(e => e.y - cameraY < H + 300);
+
+  // slight upward drift of platforms/world so we get endless feel (cameraY is already managed)
+}
+
+// Rendering
+function render(){
+  // background gradient
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#071021'); g.addColorStop(1,'#001220');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W,H);
+
+  // draw platforms
+  for (let p of platforms){
+    const sy = p.y - cameraY;
+    if (sy < -50 || sy > H+50) continue;
+    ctx.globalAlpha = p.alpha===undefined?1:p.alpha;
+    ctx.fillStyle = p.color || '#88c0ff';
+    roundRect(ctx, p.x, sy, p.w, p.h, 6, true, false);
+    ctx.globalAlpha = 1;
+  }
+
+  // draw enemies
+  for (let e of enemies){
+    const sy = e.y - cameraY;
+    if (sy < -100 || sy > H+100) continue;
+    // shadow
+    ctx.beginPath();
+    ctx.ellipse(e.x, sy + e.r + 6, e.r*0.9, e.r*0.3, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
+    // body
+    ctx.beginPath();
+    ctx.fillStyle = e.color;
+    ctx.arc(e.x, sy, e.r, 0, Math.PI*2); ctx.fill();
+    // highlight
+    ctx.beginPath(); ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.arc(e.x - e.r*0.3, sy - e.r*0.35, e.r*0.35, 0, Math.PI*2); ctx.fill();
+  }
+
+  // draw player (centered relative to cameraY)
+  const py = player.y - cameraY;
+  // shadow
+  ctx.beginPath(); ctx.ellipse(player.x, py + player.r + 6, player.r*0.9, player.r*0.32, 0, 0, Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.2)'; ctx.fill();
+  // body
+  ctx.beginPath(); ctx.fillStyle = player.color; ctx.arc(player.x, py, player.r, 0, Math.PI*2); ctx.fill();
+  // eye / shine
+  ctx.beginPath(); ctx.fillStyle = '#fff'; ctx.arc(player.x - player.r*0.25, py - player.r*0.25, player.r*0.28, 0, Math.PI*2); ctx.fill();
+
+  // particles
+  for (let p of particles){
+    ctx.globalAlpha = Math.max(0, p.life/80);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y - cameraY, p.size, p.size);
+  }
+  ctx.globalAlpha = 1;
+
+  // HUD
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.fillRect(8,8,140,40);
+  ctx.fillStyle = '#e6f0ff';
+  ctx.font = '18px system-ui, Arial';
+  ctx.fillText(`Score: ${score}`, 16, 32);
+  ctx.font = '12px system-ui, Arial';
+  ctx.fillStyle = '#aab';
+  ctx.fillText(`High: ${highScore}`, 110, 24);
+
+  // debug small indicator if paused/gameover
+  if (paused) {
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(W/2-80, H/2-40, 160, 80);
+    ctx.fillStyle = '#fff'; ctx.font='20px system-ui'; ctx.fillText('PAUSED', W/2-38, H/2);
+  }
+  if (gameOver){
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, H/2-90, W, 180);
+    ctx.fillStyle = '#fff'; ctx.font='28px system-ui'; ctx.fillText('GAME OVER', W/2-90, H/2-30);
+    ctx.font='18px system-ui'; ctx.fillText(`Score: ${score}`, W/2-48, H/2);
+    ctx.font='14px system-ui'; ctx.fillText('Click Restart to play again', W/2-94, H/2+30);
+  }
+}
+
+// helper: rounded rect
+function roundRect(ctx, x, y, w, h, r, fill=true, stroke=true){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+  if (fill) ctx.fill();
+  if (stroke) ctx.stroke();
+}
+
+requestAnimationFrame(update);
+})();
+</script>
+</body>
+</html>
