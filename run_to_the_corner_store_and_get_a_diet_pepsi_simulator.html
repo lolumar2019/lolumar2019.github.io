@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Diet Pepsi Run: A Pixel Art Crossy Game</title>
+<style>
+/* CSS Variables for Theming */
+:root{
+  --color-bg: #0b1220;
+  --color-hud: #0f1724;
+  --color-accent: #1e88e5; /* Blue */
+  --color-danger: #ff4d4f; /* Red */
+  --color-text-light: #fff;
+  --color-text-muted: #9fb0c4;
+  --color-panel-bg: #061426;
+  --color-grass: #86c15b;
+  --color-road: #222222;
+  --color-road-weird: #2a2a50;
+  --color-store: #7a3ea0;
+}
+
+/* Global Styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  background: linear-gradient(180deg, #061022, #071226);
+  font-family: 'Inter', system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  color: var(--color-text-light);
+  font-size: 16px; /* Base for rem */
+}
+
+/* Layout */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.5rem;
+  min-height: 100vh; /* Ensure full height on mobile */
+}
+
+/* Header */
+header {
+  width: 980px;
+  max-width: 94vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.header-controls {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+/* Game Box and Canvas */
+#gameBox {
+  background: var(--color-hud);
+  padding: 0.75rem;
+  border-radius: 12px;
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.7);
+  position: relative; /* For Noclip indicator */
+}
+
+canvas {
+  display: block;
+  background: var(--color-grass);
+  image-rendering: pixelated;
+  border: 6px solid #071022;
+  border-radius: 6px;
+  touch-action: none; /* Prevent browser gestures on canvas */
+}
+
+/* UI Elements */
+.ui {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-top: 0.75rem;
+  max-width: 720px; /* Align with canvas width */
+}
+
+.panel {
+  background: var(--color-panel-bg);
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  min-width: 160px;
+}
+
+button {
+  background: var(--color-accent);
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: var(--color-text-light);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+button:hover {
+  background: #1565c0; /* Darker blue */
+}
+
+.muted {
+  background: #334155;
+}
+
+.small {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.progress {
+  height: 10px;
+  background: var(--color-bg);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ffd166, var(--color-accent));
+  transition: width 0.3s ease;
+}
+
+/* Noclip Indicator */
+#noclip-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--color-danger);
+    color: var(--color-text-light);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px 0 6px 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#noclip-indicator.active {
+    opacity: 1;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .2s, visibility 0s linear .2s;
+  z-index: 100;
+}
+
+.modal.show {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+.card {
+  background: var(--color-panel-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  text-align: center;
+  max-width: 90vw;
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 760px) {
+  .ui {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .panel {
+    min-width: unset;
+  }
+}
+
+@media (max-width: 720px) {
+  canvas {
+    width: 94vw;
+    height: auto;
+  }
+  header {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  header h1 {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Diet Pepsi Run: A Pixel Art Crossy Game</h1>
+      <div class="header-controls">
+        <div class="small">Controls: WASD / Arrows / Tap</div>
+        <button id="restart" aria-label="Restart Game">Restart</button>
+        <button id="mute" class="muted" aria-label="Toggle Sound">Mute</button>
+      </div>
+    </header>
+
+    <main id="gameBox">
+      <div id="noclip-indicator">NOCLIP ENABLED</div>
+      <canvas id="game" width="720" height="720" tabindex="0"></canvas> 
+      <div class="ui">
+        <div class="panel">
+          <div>Roads crossed: <strong id="progress">0</strong> / <strong id="target">50</strong></div>
+          <div class="small">Phase: <span id="phase">Outbound</span></div>
+          <div style="margin-top:6px" class="small">Deaths: <span id="deaths">0</span> • Attempts: <span id="attempts">0</span></div>
+        </div>
+        <div class="panel" style="flex:1">
+          <div class="small">Progress</div>
+          <div class="progress" style="margin-top:6px"><div id="bar" class="bar" style="width:0%"></div></div>
+          <div class="small" style="margin-top:8px">Easter Eggs: look out for rare spawns — frogs, Saul, Shrek truck.</div>
+        </div>
+        <div class="panel">
+          <div class="small">Objective:</div>
+          <div style="font-weight:700;margin-top:6px">Cross 50 roads → Grab Pepsi → Cross 50 roads back</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="card">
+      <h2 id="modalTitle">You Died</h2>
+      <p id="modalText">Cars are merciless. Restart and try again.</p>
+      <div style="margin-top:1rem"><button id="modalBtn">Restart</button></div>
+    </div>
+  </div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+// --- Game Constants and Settings ---
+const TILE_SIZE = 12; // logical tile size in pixels
+const GRID_W = 60; // logical width
+const GRID_H = 60; // logical height
+const TOTAL_ROADS = 50;
+const VISIBLE_ROWS = 24; // Increased visible rows for better context
+const LANE_HEIGHT = 3; // Logical rows per lane in pixel rendering
+
+canvas.width = GRID_W * TILE_SIZE;
+canvas.height = VISIBLE_ROWS * TILE_SIZE * LANE_HEIGHT; // Calculate height based on visible rows
+ctx.imageSmoothingEnabled = false;
+
+// --- DOM Elements ---
+const DOM = {
+  progress: document.getElementById('progress'),
+  bar: document.getElementById('bar'),
+  phase: document.getElementById('phase'),
+  deaths: document.getElementById('deaths'),
+  attempts: document.getElementById('attempts'),
+  modal: document.getElementById('modal'),
+  modalTitle: document.getElementById('modalTitle'),
+  modalText: document.getElementById('modalText'),
+  muteBtn: document.getElementById('mute'),
+  restartBtn: document.getElementById('restart'),
+  modalBtn: document.getElementById('modalBtn'),
+  noclipIndicator: document.getElementById('noclip-indicator'),
+}
+
+// --- Game State ---
+let state = {
+  roadsCrossed: 0,
+  outbound: true, 
+  carrying: false,
+  deaths: 0,
+  attempts: 0,
+  running: false,
+  muted: false,
+  noclip: false, // <-- New state variable for noclip
+  player: { x: Math.floor(GRID_W / 2), y: GRID_H - 4, w: 1, h: 1 }, // grid coords
+  lanes: [],
+  cars: [],
+  storeInnerY: 0,
+  can: { x: Math.floor(GRID_W / 2), y: 0, taken: false },
+  keys: {},
+  canStep: true,
+  cheatString: '', // <-- New variable to track cheat input
+  targetCheat: '123satan123',
+};
+
+const LaneType = {
+  GRASS: 'grass',
+  SIDEWALK: 'sidewalk',
+  SEPARATOR: 'separator',
+  ROAD: 'road',
+  WEIRD: 'weird',
+  STORE: 'store',
+  STORE_INNER: 'store_inner',
+};
+
+// --- Initialization and World Generation ---
+
+function makeWorld() {
+  const lanes = [];
+  // Initial Area
+  lanes.push({ type: LaneType.GRASS }); 
+  lanes.push({ type: LaneType.GRASS }); 
+  lanes.push({ type: LaneType.SIDEWALK });
+
+  // Outbound Roads (0 to TOTAL_ROADS - 1)
+  for (let i = 0; i < TOTAL_ROADS; i++) {
+    const difficultyPhase = Math.floor(i / 10);
+    const r = Math.random();
+    let laneType = LaneType.ROAD;
+    if (r < 0.06 + difficultyPhase * 0.01) laneType = LaneType.WEIRD;
+    lanes.push({ 
+      type: laneType, 
+      speedMult: 1 + difficultyPhase * 0.15 + Math.random() * 0.2, 
+      index: i 
+    });
+    lanes.push({ type: LaneType.SEPARATOR });
+  }
+
+  // Store Area
+  lanes.push({ type: LaneType.SIDEWALK });
+  lanes.push({ type: LaneType.STORE });
+  lanes.push({ type: LaneType.STORE_INNER });
+  lanes.push({ type: LaneType.STORE });
+  lanes.push({ type: LaneType.SIDEWALK });
+
+  // Return Roads (TOTAL_ROADS to 2*TOTAL_ROADS - 1)
+  for (let i = 0; i < TOTAL_ROADS; i++) {
+    const difficultyPhase = Math.floor(i / 10) + 1; // Start slightly harder
+    const r = Math.random();
+    let laneType = LaneType.ROAD;
+    if (r < 0.08 + difficultyPhase * 0.01) laneType = LaneType.WEIRD;
+    lanes.push({ 
+      type: laneType, 
+      speedMult: 1 + difficultyPhase * 0.18 + Math.random() * 0.25, 
+      index: TOTAL_ROADS + i 
+    });
+    lanes.push({ type: LaneType.SEPARATOR });
+  }
+
+  // End Area
+  lanes.push({ type: LaneType.SIDEWALK });
+  lanes.push({ type: LaneType.GRASS });
+  lanes.push({ type: LaneType.GRASS });
+  
+  return lanes;
+}
+
+function randomCarColor() {
+  const palette = ['#ff6b6b', '#ffd166', '#90be6d', '#4d96ff', '#ff7ab6', '#b28cff'];
+  return palette[Math.floor(Math.random() * palette.length)];
+}
+
+function seedTraffic() {
+  state.cars = [];
+  const { lanes } = state;
+  const laneWidth = GRID_W - 4;
+
+  lanes.forEach((lane, y) => {
+    if (lane.type === LaneType.ROAD || lane.type === LaneType.WEIRD) {
+      const carCount = 3 + Math.floor(Math.random() * 3) + Math.floor(lane.speedMult || 1);
+      for (let i = 0; i < carCount; i++) {
+        const dir = Math.random() < 0.5 ? 1 : -1;
+        const speed = (1.2 + Math.random() * 1.6) * (lane.speedMult || 1);
+        const len = 3 + Math.floor(Math.random() * 4);
+        // Start cars well off-screen
+        const startX = dir === 1 
+          ? -GRID_W - Math.random() * GRID_W 
+          : GRID_W + Math.random() * GRID_W;
+        
+        state.cars.push({ lane: y, x: startX, len, dir, speed, color: randomCarColor() });
+      }
+    }
+  });
+}
+
+function resetGameState() {
+  state.lanes = makeWorld();
+  state.storeInnerY = state.lanes.findIndex(l => l.type === LaneType.STORE_INNER);
+  state.can = { x: Math.floor(GRID_W / 2), y: state.storeInnerY, taken: false };
+  
+  seedTraffic();
+
+  state.roadsCrossed = 0;
+  state.outbound = true;
+  state.carrying = false;
+  state.player.x = Math.floor(GRID_W / 2);
+  state.player.y = state.lanes.length - 4; // Start near the bottom
+  state.attempts = 0;
+  state.running = true;
+
+  // Initial UI updates
+  DOM.attempts.innerText = state.attempts;
+  DOM.deaths.innerText = state.deaths;
+  DOM.phase.innerText = 'Outbound';
+  updateProgress();
+  hideModal();
+  playSfx('step');
+}
+
+// --- Game Logic ---
+
+function updateProgress() {
+  let count = 0;
+  const { lanes, outbound, player } = state;
+  const playerAbsY = player.y;
+
+  // Initial safe area ends at y=2 (Grass, Grass, Sidewalk)
+  const startY = 3; 
+  const totalLanes = lanes.length;
+
+  for (let y = 0; y < totalLanes; y++) {
+    const lane = lanes[y];
+    if (lane.type === LaneType.ROAD || lane.type === LaneType.WEIRD) {
+      if (outbound) {
+        // Crossed if player is on or above this lane (lower y index)
+        if (playerAbsY <= y) count++;
+      } else {
+        // Crossed if player is on or below this lane (higher y index)
+        if (playerAbsY >= y) count++;
+      }
+    }
+  }
+
+  // Max out at TOTAL_ROADS
+  state.roadsCrossed = Math.min(TOTAL_ROADS, count); 
+  
+  DOM.progress.innerText = state.roadsCrossed;
+  
+  // Calculate total progress percentage for the bar
+  const totalProgressSteps = TOTAL_ROADS * 2;
+  let currentProgressSteps = state.roadsCrossed;
+  if (!outbound) currentProgressSteps += TOTAL_ROADS;
+
+  const progressPercent = Math.min(100, (currentProgressSteps / totalProgressSteps) * 100);
+  DOM.bar.style.width = progressPercent + '%';
+
+  // Check for Win
+  if (!state.outbound && state.roadsCrossed >= TOTAL_ROADS && playerAbsY >= totalLanes - 4) {
+    state.running = false;
+    showModal('VICTORY!', 'You successfully grabbed the Diet Pepsi and made it back!');
+    playSfx('win');
+  }
+}
+
+function attemptMove(dx, dy) {
+  if (!state.running) return;
+
+  const { player, lanes, storeInnerY, can } = state;
+  const nx = player.x + dx;
+  const ny = player.y + dy;
+
+  // Bounds check (safe area left/right 2-3 cells)
+  if (nx < 2 || nx > GRID_W - 3) return; 
+  if (ny < 0 || ny > lanes.length - 1) return;
+
+  // Perform move
+  player.x = nx;
+  player.y = ny;
+
+  state.attempts++;
+  DOM.attempts.innerText = state.attempts;
+  playSfx('step');
+
+  // Check for can pickup
+  if (!can.taken && player.x === can.x && player.y === can.y) { 
+    can.taken = true; 
+    state.carrying = true; 
+    playSfx('pickup'); 
+  }
+
+  // Check for phase change (reaching store)
+  if (state.outbound && state.carrying && player.y === storeInnerY) {
+    state.outbound = false; 
+    DOM.phase.innerText = 'Return';
+    playSfx('winphase');
+    // Reset progress count to 0 for return journey (visually)
+    state.roadsCrossed = 0;
+  }
+  
+  updateProgress();
+}
+
+function triggerDeath(car) {
+  state.deaths++;
+  DOM.deaths.innerText = state.deaths;
+  playSfx('die');
+  state.running = false;
+  
+  let deathReason = 'A car got you. Restart from road 1.';
+  if (car.color === '#ff6b6b' && car.len > 5) {
+      deathReason = 'The Shrek Truck got you. You were not Fast enough.';
+  } else if (car.color === '#ffd166') {
+      deathReason = 'Slippery yellow vehicle! Restart from road 1.';
+  }
+
+  showModal('You Died', deathReason);
+}
+
+// --- Noclip Cheat Logic ---
+function checkNoclipCheat(key) {
+    const { cheatString, targetCheat } = state;
+    
+    // Only care about alphanumeric keys for the cheat
+    if (key.length === 1 && key.match(/[a-z0-9]/)) {
+        // Append the new key to the tracker
+        const newString = cheatString + key;
+        
+        // Check if the end of the new string matches the start of the target cheat
+        if (targetCheat.startsWith(newString)) {
+            state.cheatString = newString;
+        } else {
+            // If the key breaks the sequence, try to restart the sequence with the new key
+            let restartIndex = targetCheat.indexOf(newString.charAt(newString.length - 1));
+            state.cheatString = (restartIndex === 0) ? key : '';
+        }
+        
+        // Check for full match
+        if (state.cheatString === targetCheat) {
+            state.noclip = !state.noclip; // Toggle noclip
+            state.cheatString = ''; // Reset cheat tracker
+            
+            // Update indicator
+            DOM.noclipIndicator.classList.toggle('active', state.noclip);
+            if (state.noclip) {
+                playSfx('winphase'); // Use a positive sound for cheat activation
+            } else {
+                playSfx('pickup');
+            }
+        }
+    } else {
+        // Reset the cheat string if the key is a control key (WASD, Arrow, etc.)
+        // This is optional but prevents accidental activation during gameplay
+        if (key !== 'shift' && key !== 'control' && key !== 'alt') {
+             state.cheatString = '';
+        }
+    }
+}
+
+// --- Input Handling (Refined) ---
+
+function handleKeyInput(e) {
+  const key = e.key.toLowerCase();
+  
+  // Check for the cheat code on every key press
+  if (e.type === 'keydown') {
+      checkNoclipCheat(key); 
+  }
+
+  // Allow immediate restart or mute regardless of game state
+  if (key === 'r') { e.preventDefault(); restart(); return; }
+  if (key === ' ') { e.preventDefault(); }
+  
+  if (e.type === 'keydown') {
+    state.keys[key] = true;
+    if (state.canStep) {
+      let dx = 0, dy = 0;
+      if (key === 'arrowleft' || key === 'a') dx = -1; 
+      else if (key === 'arrowright' || key === 'd') dx = 1;
+      else if (key === 'arrowup' || key === 'w') dy = -1; 
+      else if (key === 'arrowdown' || key === 's') dy = 1;
+
+      if (dx !== 0 || dy !== 0) {
+        attemptMove(dx, dy);
+        state.canStep = false; 
+      }
+    }
+  } else if (e.type === 'keyup') {
+    state.keys[key] = false;
+    state.canStep = true;
+  }
+}
+
+function handleTouchInput(e) {
+  e.preventDefault(); // Prevent scrolling/zooming
+  const rect = canvas.getBoundingClientRect();
+  const cx = (e.clientX - rect.left) / rect.width;
+  const cy = (e.clientY - rect.top) / rect.height;
+
+  let dx = 0, dy = 0;
+  // Divide canvas into 9 zones
+  const zoneX = cx < 0.33 ? -1 : (cx > 0.66 ? 1 : 0);
+  const zoneY = cy < 0.33 ? -1 : (cy > 0.66 ? 1 : 0);
+  
+  // Prioritize vertical movement if central-ish, otherwise go diagonal.
+  if (Math.abs(zoneY) > 0) dy = zoneY;
+  else if (Math.abs(zoneX) > 0) dx = zoneX;
+
+  if (dx !== 0 || dy !== 0) attemptMove(dx, dy);
+}
+
+// --- Game Loop and Rendering ---
+
+let last = performance.now();
+
+function loop(now) {
+  const dt = Math.min(0.06, (now - last) / 1000);
+  last = now;
+
+  if (state.running) update(dt);
+  render();
+
+  requestAnimationFrame(loop);
+}
+
+function update(dt) {
+  // Move cars
+  for (let c of state.cars) {
+    c.x += c.speed * c.dir * dt * 6; 
+    
+    // Wrap cars
+    if (c.dir === 1 && c.x > GRID_W + 6) c.x = -6 - Math.random() * 20; 
+    if (c.dir === -1 && c.x < -10) c.x = GRID_W + 6 + Math.random() * 20;
+  }
+
+  // Collision detection
+  const pLane = state.player.y;
+  const { lanes, player } = state;
+
+  // --- NOCLIP CHECK HERE ---
+  if (!state.noclip) { 
+    for (let c of state.cars) {
+      if (c.lane === pLane) {
+        const carMin = Math.min(c.x, c.x + (c.len - 1));
+        const carMax = Math.max(c.x, c.x + (c.len - 1));
+        
+        if (player.x >= carMin && player.x <= carMax) {
+          const lane = lanes[pLane];
+          if (lane.type === LaneType.ROAD || lane.type === LaneType.WEIRD) {
+            triggerDeath(c);
+            return;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Draw Helpers (Pixel Scale)
+function drawPixelRect(gx, gy, gw, gh, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(gx * TILE_SIZE, gy * TILE_SIZE, gw * TILE_SIZE, gh * TILE_SIZE);
+}
+
+function render() {
+  const { player, lanes, cars, can } = state;
+
+  // Determine viewport based on player Y
+  const halfVisible = Math.floor(VISIBLE_ROWS * LANE_HEIGHT / 2);
+  let topPixelRow = Math.max(0, Math.min(lanes.length * LANE_HEIGHT - VISIBLE_ROWS * LANE_HEIGHT, 
+    Math.floor(player.y * LANE_HEIGHT) - halfVisible));
+
+  // Clear Canvas (Optional: use the starting grass color)
+  ctx.fillStyle = '#86c15b'; 
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw Lanes and Decorations
+  for (let i = 0; i < VISIBLE_ROWS; i++) {
+    const canvasPy = i * LANE_HEIGHT; 
+    const y = Math.floor((topPixelRow + canvasPy) / LANE_HEIGHT); 
+
+    const lane = lanes[y];
+    if (!lane) continue; 
+
+    // Get color from CSS variables
+    let color = '';
+    switch (lane.type) {
+      case LaneType.GRASS: color = getComputedStyle(document.documentElement).getPropertyValue('--color-grass'); break;
+      case LaneType.SIDEWALK: color = '#cfcfcf'; break;
+      case LaneType.STORE: 
+      case LaneType.STORE_INNER: color = getComputedStyle(document.documentElement).getPropertyValue('--color-store'); break;
+      case LaneType.SEPARATOR: color = getComputedStyle(document.documentElement).getPropertyValue('--color-grass'); break;
+      case LaneType.ROAD: color = getComputedStyle(document.documentElement).getPropertyValue('--color-road'); break;
+      case LaneType.WEIRD: color = getComputedStyle(document.documentElement).getPropertyValue('--color-road-weird'); break;
+      default: color = getComputedStyle(document.documentElement).getPropertyValue('--color-grass');
+    }
+
+    // Fill the lane band (3 logical rows for this lane)
+    drawPixelRect(0, canvasPy, GRID_W, LANE_HEIGHT, color);
+
+    // Decorations
+    if (lane.type === LaneType.ROAD || lane.type === LaneType.WEIRD) {
+      // Dashed center line in the middle of the 3 pixel rows (at canvasPy + 1)
+      ctx.fillStyle = '#f3f4f6';
+      for (let x = 0; x < GRID_W; x += 8) { 
+        ctx.fillRect(x * TILE_SIZE, (canvasPy + 1) * TILE_SIZE, 3 * TILE_SIZE, 1 * TILE_SIZE); 
+      }
+    }
+    
+    if (lane.type === LaneType.STORE) {
+      drawPixelRect(Math.floor(GRID_W / 2) - 6, canvasPy, 12, LANE_HEIGHT, '#ffd166');
+    }
+  }
+
+  // Draw Cars in viewport
+  for (let c of cars) {
+    const cAbsPy = c.lane * LANE_HEIGHT;
+    const rowIndex = cAbsPy - topPixelRow; 
+
+    if (rowIndex >= -LANE_HEIGHT && rowIndex < VISIBLE_ROWS * LANE_HEIGHT) {
+      const gx = Math.floor(c.x);
+      const gy = rowIndex + 1; 
+      drawPixelRect(gx, gy, c.len, LANE_HEIGHT - 1, c.color); 
+    }
+  }
+
+  // Draw Can (Diet Pepsi) if not taken
+  if (!can.taken) {
+    const canAbsPy = can.y * LANE_HEIGHT;
+    const cy = canAbsPy - topPixelRow;
+    if (cy >= 0 && cy < VISIBLE_ROWS * LANE_HEIGHT) { 
+      drawPixelRect(can.x, cy + 1, 1, 1, getComputedStyle(document.documentElement).getPropertyValue('--color-accent')); 
+    }
+  }
+
+  // Draw Player relative to viewport
+  const pAbsPy = player.y * LANE_HEIGHT;
+  const py = pAbsPy - topPixelRow;
+  
+  if (py >= 0 && py < VISIBLE_ROWS * LANE_HEIGHT) {
+    // Player color changes slightly when noclip is active
+    const playerColor = state.noclip ? '#ff4d4f' : '#ffd166'; 
+    drawPixelRect(player.x, py + 1, 1, LANE_HEIGHT - 1, playerColor); 
+    
+    // Draw "carrying" indicator
+    if (state.carrying) {
+        drawPixelRect(player.x, py, 1, 1, getComputedStyle(document.documentElement).getPropertyValue('--color-accent'));
+    }
+  }
+}
+
+// --- UI and Modal ---
+
+function showModal(title, text) { 
+  DOM.modalTitle.innerText = title; 
+  DOM.modalText.innerText = text; 
+  DOM.modal.classList.add('show'); 
+}
+
+function hideModal() { 
+  DOM.modal.classList.remove('show'); 
+}
+
+function restart() {
+  state.deaths = (state.running ? state.deaths : state.deaths + 1); 
+  resetGameState();
+}
+
+// --- Audio ---
+let audioCtx = null;
+function playSfx(name) { 
+  if (state.muted) return; 
+  try { 
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+    const a = audioCtx; 
+    let f=440,t=0.08,v=0.08; 
+    if (name==='die'){f=120;t=0.24;v=0.18} 
+    if (name==='pickup'){f=1200;t=0.06;v=0.14} 
+    if (name==='winphase' || name==='win'){f=820;t=0.18;v=0.12} 
+    if (name==='step'){f=520;t=0.04;v=0.06} 
+    
+    const o=a.createOscillator(); 
+    const g=a.createGain(); 
+    o.type='square'; 
+    o.frequency.value=f; 
+    g.gain.value=v; 
+    o.connect(g); 
+    g.connect(a.destination); 
+    o.start(); 
+    g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+t); 
+    o.stop(a.currentTime+t+0.02);
+  } catch(e) {}
+}
+
+// --- Event Listeners ---
+DOM.muteBtn.addEventListener('click', () => { 
+  state.muted = !state.muted; 
+  DOM.muteBtn.classList.toggle('muted'); 
+  DOM.muteBtn.innerText = state.muted ? 'Unmute' : 'Mute'; 
+});
+
+DOM.restartBtn.addEventListener('click', restart);
+DOM.modalBtn.addEventListener('click', restart);
+
+window.addEventListener('keydown', handleKeyInput);
+window.addEventListener('keyup', handleKeyInput);
+canvas.addEventListener('pointerdown', handleTouchInput);
+
+
+// --- Game Start ---
+resetGameState();
+requestAnimationFrame(loop);
+
+console.log('Diet Pepsi Run initialized. Good luck!');
+</script>
+</body>
+</html>
