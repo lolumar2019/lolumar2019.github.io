@@ -1,90 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Lumina AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lumina AI</title>
 
-  <!-- iOS PWA meta -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Lumina AI">
+<!-- iOS PWA meta -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Lumina AI">
 
-  <!-- App icon (replace if needed) -->
-  <link rel="apple-touch-icon" href="icon.png">
+<!-- App icon -->
+<link rel="apple-touch-icon" href="icon.png">
 
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0b0b0f;
-      color: #fff;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0b0b0f;
+    color: #fff;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-    .card {
-      width: 90%;
-      max-width: 400px;
-      background: #15151d;
-      border-radius: 20px;
-      padding: 24px;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    }
+  .card {
+    width: 90%;
+    max-width: 400px;
+    background: #15151d;
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
 
-    .logo {
-      width: 100px;
-      height: 100px;
-      margin: 0 auto;
-      border-radius: 20px;
-      background: #5b7cff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 64px;
-      font-weight: bold;
-      color: white;
-    }
+  .logo {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    border-radius: 20px;
+    background: #5b7cff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 64px;
+    font-weight: bold;
+    color: white;
+  }
 
-    h1 {
-      margin: 16px 0 8px 0;
-      font-size: 24px;
-    }
+  h1 {
+    margin: 16px 0 8px 0;
+    font-size: 24px;
+  }
 
-    p {
-      color: #b5b5c5;
-      font-size: 14px;
-    }
+  p {
+    color: #b5b5c5;
+    font-size: 14px;
+  }
 
-    .btn {
-      margin-top: 20px;
-      padding: 14px;
-      border-radius: 12px;
-      background: #5b7cff;
-      color: white;
-      border: none;
-      width: 100%;
-      font-size: 16px;
-      cursor: pointer;
-    }
+  .btn {
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 12px;
+    background: #5b7cff;
+    color: white;
+    border: none;
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
+  }
 
-    .installer, .app-ui {
-      display: none;
-    }
+  .installer, .app-ui {
+    display: none;
+  }
 
-    .active {
-      display: block;
-    }
-  </style>
+  .active {
+    display: block;
+  }
+</style>
 </head>
 <body>
 
   <!-- Installer Screen -->
-  <div class="card installer active" id="installer">
+  <div class="card installer" id="installer">
     <h1>Install Lumina AI</h1>
     <p>Install Lumina AI securely on your device.<br>No App Store required.</p>
     <button class="btn" onclick="startInstall()">Install</button>
@@ -93,37 +93,28 @@
   <!-- Lumina AI App UI -->
   <div class="card app-ui" id="appUI">
     <div class="logo">L</div>
-    <h1>Welcome to Lumina AI</h1>
-    <p>Your AI assistant is ready.</p>
-    <button class="btn" onclick="startAI()">Start AI</button>
+    <h1>Hello World!!!!!!!!!!!!!!!!</h1>
+    <p>Welcome to Lumina AI!</p>
   </div>
 
 <script>
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-
   const installer = document.getElementById('installer');
   const appUI = document.getElementById('appUI');
 
-  // If already installed, show Lumina AI UI
+  // Detect if app is running in standalone mode (Home Screen)
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
   if (isStandalone) {
+    // Show app UI if opened from Home Screen
     installer.classList.remove('active');
     appUI.classList.add('active');
+  } else {
+    // Show installer if opened in Safari
+    installer.classList.add('active');
   }
 
   function startInstall() {
-    if (!isIOS || !isSafari) {
-      alert("Please open this page in Safari on an iPhone or iPad.");
-      return;
-    }
-
-    alert("To install Lumina AI:\n1. Tap Share ⬆️\n2. Select 'Add to Home Screen'");
-  }
-
-  function startAI() {
-    alert("Lumina AI is starting...\nThis is where your AI interface would appear.");
-    // Here you can replace with your actual AI web interface
+    alert("To install Lumina AI:\n1. Tap the Share ⬆️ button in Safari\n2. Select 'Add to Home Screen'");
   }
 </script>
 
