@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <title>Lumina AI Installer</title>
+
+  <!-- iOS PWA meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Lumina AI">
+
+  <!-- App icon (replace with your own) -->
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0b0b0f;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .card {
+      width: 90%;
+      max-width: 360px;
+      background: #15151d;
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      margin-top: 10px;
+      font-size: 24px;
+    }
+
+    p {
+      color: #b5b5c5;
+      font-size: 14px;
+    }
+
+    .btn {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #5b7cff;
+      color: white;
+      border: none;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .steps {
+      text-align: left;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .steps li {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+
+    .progress {
+      margin-top: 16px;
+      height: 6px;
+      background: #2a2a3a;
+      border-radius: 10px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .bar {
+      width: 0%;
+      height: 100%;
+      background: #5b7cff;
+      animation: load 3s linear forwards;
+    }
+
+    @keyframes load {
+      to { width: 100%; }
+    }
+
+    .installed {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="installer">
+    <h1>Install Lumina AI</h1>
+    <p>Install Lumina AI securely on your device.<br>No App Store required.</p>
+
+    <button class="btn" onclick="startInstall()">Install</button>
+
+    <div class="progress" id="progress">
+      <div class="bar"></div>
+    </div>
+
+    <ol class="steps" id="steps">
+      <li>Tap the <strong>Share</strong> ⬆️ button in Safari</li>
+      <li>Select <strong>Add to Home Screen</strong></li>
+      <li>Open Lumina AI from your Home Screen</li>
+    </ol>
+  </div>
+
+  <div class="card installed" id="installed">
+    <h1>Lumina AI</h1>
+    <p>App is installed.</p>
+    <button class="btn" onclick="openApp()">Open App</button>
+  </div>
+
+<script>
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+  if (isStandalone) {
+    document.getElementById('installer').style.display = 'none';
+    document.getElementById('installed').style.display = 'block';
+  }
+
+  function startInstall() {
+    if (!isIOS || !isSafari) {
+      alert("Please open this page in Safari on an iPhone or iPad.");
+      return;
+    }
+    document.getElementById('progress').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('steps').style.display = 'block';
+    }, 3000);
+  }
+
+  function openApp() {
+    window.location.href = "/";
+  }
+</script>
+
+</body>
+</html>
