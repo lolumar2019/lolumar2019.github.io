@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Lumina AI</title>
+<title>Lumina AI Installer</title>
 
 <!-- iOS PWA meta -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,30 +36,8 @@
     box-shadow: 0 20px 40px rgba(0,0,0,0.5);
   }
 
-  .logo {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto;
-    border-radius: 20px;
-    background: #5b7cff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 64px;
-    font-weight: bold;
-    color: white;
-  }
-
-  h1 {
-    margin: 16px 0 8px 0;
-    font-size: 24px;
-  }
-
-  p {
-    color: #b5b5c5;
-    font-size: 14px;
-  }
-
+  h1 { margin: 16px 0 8px 0; font-size: 24px; }
+  p { color: #b5b5c5; font-size: 14px; }
   .btn {
     margin-top: 20px;
     padding: 14px;
@@ -71,46 +49,22 @@
     font-size: 16px;
     cursor: pointer;
   }
-
-  .installer, .app-ui {
-    display: none;
-  }
-
-  .active {
-    display: block;
-  }
 </style>
 </head>
 <body>
 
-  <!-- Installer Screen -->
-  <div class="card installer" id="installer">
-    <h1>Install Lumina AI</h1>
-    <p>Install Lumina AI securely on your device.<br>No App Store required.</p>
-    <button class="btn" onclick="startInstall()">Install</button>
-  </div>
-
-  <!-- Lumina AI App UI -->
-  <div class="card app-ui" id="appUI">
-    <div class="logo">L</div>
-    <h1>Hello World!!!!!!!!!!!!!!!!</h1>
-    <p>Welcome to Lumina AI!</p>
-  </div>
+<div class="card">
+  <h1>Install Lumina AI</h1>
+  <p>Install Lumina AI securely on your device.<br>No App Store required.</p>
+  <button class="btn" onclick="startInstall()">Install</button>
+</div>
 
 <script>
-  const installer = document.getElementById('installer');
-  const appUI = document.getElementById('appUI');
-
-  // Detect if app is running in standalone mode (Home Screen)
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
+  // Redirect to app if opened as PWA
   if (isStandalone) {
-    // Show app UI if opened from Home Screen
-    installer.classList.remove('active');
-    appUI.classList.add('active');
-  } else {
-    // Show installer if opened in Safari
-    installer.classList.add('active');
+    window.location.href = "app.html";
   }
 
   function startInstall() {
