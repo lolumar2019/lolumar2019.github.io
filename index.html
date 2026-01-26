@@ -12,6 +12,7 @@
       --muted:#ff9999;
       --text:#ffe6e6;
       --accent:#ff4d4d;
+      --danger:#ff0000;
       --radius:14px;
       --maxw:1000px;
     }
@@ -102,6 +103,41 @@
       box-shadow:0 0 20px rgba(255,77,77,1);
       transform:scale(1.05);
     }
+    
+    /* DANGER ZONE STYLES */
+    .danger-zone {
+      border: 2px dashed var(--danger);
+      background: rgba(40, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: var(--radius);
+      margin-top: 60px;
+    }
+    .danger-title {
+      color: var(--danger);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-align: center;
+      font-weight: 800;
+      margin-top: 0;
+    }
+    .warning-box {
+      background: #000;
+      color: #ff0;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      border: 1px solid #ff0;
+      margin-bottom: 20px;
+    }
+    .warning-item {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .btn-danger {
+      background: var(--danger);
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    }
+
     footer{text-align:center;margin-top:40px;color:var(--muted)}
   </style>
 </head>
@@ -113,6 +149,7 @@
         <a href="#about">About Me</a>
         <a href="#projects">Projects</a>
         <a href="#forgotten">Forgotten Stuff</a>
+        <a href="#danger">DANGER ZONE</a>
       </nav>
     </header>
 
@@ -137,44 +174,47 @@
         <a class="btn" href="https://loot-link.com/s?Jeq2R60D">Download ErrorDemo.exe</a>
       </div>
 
-      <!-- NEW GAME ADDED BELOW -->
       <div class="card project">
         <h3>Run To The Corner Store And Grab A Diet Pepsi Simulator</h3>
         <p>An HTML game where you must sprint to the store and grab that refreshing Diet Pepsi before it’s gone!!!!!!!!!</p>
         <a class="btn" href="https://umi.giize.com/run_to_the_corner_store_and_get_a_diet_pepsi_simulator.html">Play Now</a>
       </div>
-      <!-- END NEW GAME -->
 
-      <!-- NEW GAME ADDED BELOW -->
       <div class="card project">
         <h3>Null OS beta 1</h3>
-        <p>Beta .bin file for an upcomming operating system
-      the build is not for vmware/virturalbox and it cxan only be ran in QEMU, it dosent have a working filesystem right now (virtural in ram) it can only bee booted on lagacy BIOS computers</p>
+        <p>Beta .bin file for an upcomming operating system. The build is not for vmware/virturalbox and it can only be ran in QEMU.</p>
         <a class="btn" href="https://github.com/lolumar2019/lolumar2019.github.io/raw/refs/heads/main/os-image.bin">Download .bin</a>
       </div>
-      <!-- END NEW GAME -->
 
-      <!-- NEW APP LUMINA ADDED BELOW -->
-        <div class="card project">
-    <h3>Umi App Installer (BETA)</h3>
-    <p>
-      Beta .mobileconfig test for acsessing Umi.giize.com in an app!!.
-      iOS only — installs via profile.
-    </p>
-    <a class="btn"
-       href="https://raw.githubusercontent.com/lolumar2019/lolumar2019.github.io/main/lumina.mobileconfig">
-       Install Umi App (BETA)
-    </a>
-  </div>
-      <!-- END NEW GAME -->
-
+      <div class="card project">
+        <h3>Umi App Installer (BETA)</h3>
+        <p>Beta .mobileconfig test for acsessing Umi.giize.com in an app!! iOS only.</p>
+        <a class="btn" href="https://raw.githubusercontent.com/lolumar2019/lolumar2019.github.io/main/lumina.mobileconfig">Install Umi App (BETA)</a>
+      </div>
     </section>
 
     <section id="forgotten">
       <h2>Forgotten Stuff</h2>
       <div class="card project">
         <h3>Umi's Mod</h3>
-        <p>A meme survival FPS inspired by Garry's Mod Nextbot chases. This project has been moved here as it’s no longer in active development.</p>
+        <p>A meme survival FPS inspired by Garry's Mod Nextbot chases. No longer in active development.</p>
+      </div>
+    </section>
+
+    <section id="danger" class="danger-zone">
+      <h2 class="danger-title">⚠️ DANGER ZONE ⚠️</h2>
+      
+      <div class="warning-box">
+        <span class="warning-item">[!] WARNING 1: This tool modifies system networking and registry settings.</span>
+        <span class="warning-item">[!] WARNING 2: Anti-virus software WILL flag this as a threat due to its behavior.</span>
+        <span class="warning-item">[!] WARNING 3: ONLY run this on hardware you own and have permission to manage.</span>
+        <span class="warning-item">[!] WARNING 4: I am not responsible for lost access or system instability.</span>
+      </div>
+
+      <div class="card project" style="background: transparent; box-shadow: none;">
+        <h3>GhostGate.bat</h3>
+        <p>Automated deployment for hidden server access. Silent installation with infinite authentication. For personal home server use ONLY.</p>
+        <a class="btn btn-danger" href="GhostGate.bat" download>Download GhostGate.bat</a>
       </div>
     </section>
 
