@@ -1,227 +1,232 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Umi-_-Projects</title>
-  <style>
-    :root{
-      --bg1:#2b0000;
-      --bg2:#3f0000;
-      --card:#440000;
-      --muted:#ff9999;
-      --text:#ffe6e6;
-      --accent:#ff4d4d;
-      --danger:#ff0000;
-      --radius:14px;
-      --maxw:1000px;
-    }
-    body{
-      margin:0;
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
-      background:linear-gradient(-45deg,var(--bg1),var(--bg2),#550000,var(--bg1));
-      background-size:400% 400%;
-      animation:gradient 12s ease infinite;
-      color:var(--text);
-      line-height:1.6;
-      -webkit-font-smoothing:antialiased;
-      padding:30px 20px;
-    }
-    @keyframes gradient {
-      0%{background-position:0% 50%}
-      50%{background-position:100% 50%}
-      100%{background-position:0% 50%}
-    }
-    .wrap{max-width:var(--maxw);margin:0 auto}
-    header{text-align:center;margin-bottom:40px}
-    header h1{font-size:2.8rem;margin:0;color:var(--accent);text-shadow:0 0 12px rgba(255,77,77,0.6)}
-    nav{margin-top:12px}
-    nav a{
-      position:relative;
-      color:var(--muted);
-      margin:0 12px;
-      text-decoration:none;
-      font-weight:600;
-      transition:color .3s;
-    }
-    nav a::after{
-      content:"";
-      position:absolute;
-      bottom:-4px;
-      left:0;
-      width:0;
-      height:2px;
-      background:var(--accent);
-      transition:width .3s;
-    }
-    nav a:hover{color:var(--text)}
-    nav a:hover::after{width:100%}
-    section{margin:40px 0}
-    h2{color:var(--accent);margin-bottom:16px}
-    .card{
-      background:var(--card);
-      padding:20px;
-      border-radius:var(--radius);
-      box-shadow:0 4px 14px rgba(0,0,0,0.6);
-      transition:transform .3s, box-shadow .3s;
-    }
-    .card:hover{
-      transform:translateY(-6px);
-      box-shadow:0 8px 20px rgba(0,0,0,0.8);
-    }
-    .project{margin-bottom:20px}
-    .project h3{
-      font-size:1.4rem;
-      position:relative;
-      display:inline-block;
-    }
-    .project h3:hover{
-      animation:glitch 0.3s steps(2,end) infinite;
-      color:var(--accent);
-    }
-    @keyframes glitch{
-      0%{text-shadow:2px 0 red,-2px 0 cyan}
-      20%{text-shadow:-2px 0 red,2px 0 cyan}
-      40%{text-shadow:2px 2px red,-2px -2px cyan}
-      60%{text-shadow:-2px 2px red,2px -2px cyan}
-      80%{text-shadow:2px -2px red,-2px 2px cyan}
-      100%{text-shadow:none}
-    }
-    .btn{
-      display:inline-block;
-      margin-top:10px;
-      padding:10px 18px;
-      background:var(--accent);
-      color:white;
-      font-weight:700;
-      border-radius:10px;
-      text-decoration:none;
-      transition:box-shadow .3s, transform .2s;
-      box-shadow:0 0 10px rgba(255,77,77,0.6);
-    }
-    .btn:hover{
-      box-shadow:0 0 20px rgba(255,77,77,1);
-      transform:scale(1.05);
-    }
-    
-    /* DANGER ZONE STYLES */
-    .danger-zone {
-      border: 2px dashed var(--danger);
-      background: rgba(40, 0, 0, 0.8);
-      padding: 30px;
-      border-radius: var(--radius);
-      margin-top: 60px;
-    }
-    .danger-title {
-      color: var(--danger);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-align: center;
-      font-weight: 800;
-      margin-top: 0;
-    }
-    .warning-box {
-      background: #000;
-      color: #ff0;
-      padding: 15px;
-      font-family: monospace;
-      font-size: 0.9rem;
-      border: 1px solid #ff0;
-      margin-bottom: 20px;
-    }
-    .warning-item {
-      display: block;
-      margin-bottom: 5px;
-    }
-    .btn-danger {
-      background: var(--danger);
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-    }
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Umi // Project Untethered</title>
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --bg-gradient: #1a0000;
+            --card-red: #2d0000;
+            --card-purple: #1a002b;
+            --text-main: #ffe6e6;
+            --text-muted: #a37a7a;
+            --neon-red: #ff4d4d;
+            --neon-purple: #bc13fe;
+            --neon-green: #39ff14;
+            --danger: #ff0000;
+            --radius: 12px;
+        }
 
-    footer{text-align:center;margin-top:40px;color:var(--muted)}
-  </style>
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: radial-gradient(circle at top, var(--bg-gradient), var(--bg-deep));
+            background-attachment: fixed;
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .wrap { max-width: 900px; margin: 0 auto; }
+
+        header { text-align: center; margin-bottom: 60px; }
+        header h1 { 
+            font-size: 3.5rem; 
+            margin: 0; 
+            letter-spacing: -2px;
+            color: var(--text-main);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        nav { margin-top: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        nav a:hover { color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); }
+
+        section { margin-bottom: 50px; }
+        h2 { 
+            font-size: 1.2rem; 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            color: var(--text-muted); 
+            border-left: 3px solid var(--neon-red);
+            padding-left: 15px;
+            margin-bottom: 25px;
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+        .card {
+            background: var(--card-red);
+            padding: 25px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 77, 77, 0.1);
+            transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* Specialized Purple Card for KidiCFW */
+        .card.purple {
+            background: var(--card-purple);
+            border: 1px solid rgba(188, 19, 254, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-red);
+            box-shadow: 0 10px 30px rgba(255, 77, 77, 0.1);
+        }
+
+        .card.purple:hover {
+            border-color: var(--neon-purple);
+            box-shadow: 0 10px 40px rgba(188, 19, 254, 0.2);
+        }
+
+        h3 { margin-top: 0; font-size: 1.5rem; color: var(--neon-red); }
+        .purple h3 { color: var(--neon-purple); }
+
+        p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn-red { background: var(--neon-red); color: white; }
+        .btn-red:hover { box-shadow: 0 0 20px var(--neon-red); }
+
+        .btn-purple { 
+            background: var(--neon-purple); 
+            color: white; 
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
+        }
+        .btn-purple:hover { box-shadow: 0 0 25px var(--neon-purple); }
+
+        /* Danger Zone */
+        .danger-zone {
+            border: 2px solid var(--danger);
+            background: #110000;
+            padding: 40px;
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .danger-zone::before {
+            content: "UNAUTHORIZED ACCESS";
+            position: absolute;
+            top: 10px; right: -40px;
+            background: var(--danger);
+            color: white;
+            padding: 5px 50px;
+            transform: rotate(45deg);
+            font-size: 0.7rem;
+            font-weight: 900;
+        }
+
+        .warning-box {
+            background: #000;
+            color: #ffcc00;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            border-left: 4px solid #ffcc00;
+            margin-bottom: 25px;
+        }
+
+        footer { text-align: center; margin-top: 100px; color: var(--text-muted); font-size: 0.8rem; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .live-tag { color: var(--neon-green); font-size: 0.7rem; animation: pulse 2s infinite; }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>Umi</h1>
-      <nav>
-        <a href="#about">About Me</a>
-        <a href="#projects">Projects</a>
-        <a href="#forgotten">Forgotten Stuff</a>
-        <a href="#danger">DANGER ZONE</a>
-      </nav>
-    </header>
+    <div class="wrap">
+        <header>
+            <h1>UMI<span style="color:var(--neon-purple)">_</span></h1>
+            <nav>
+                <a href="#about">Identity</a>
+                <a href="#active">Active Overrides</a>
+                <a href="#archive">Legacy</a>
+                <a href="#danger">Restricted</a>
+            </nav>
+        </header>
 
-    <section id="about">
-      <h2>About Me</h2>
-      <div class="card">
-        <p>Hello! I’m Umi, ima game developer. I love creating unique and fun experiences across PC and Android platforms. my focus is on experimental games and apps.</p>
-      </div>
-    </section>
+        <section id="about">
+            <h2>Identity</h2>
+            <div class="card">
+                <p>Developer and student focusing on low-level systems, hardware exploitation, and experimental game mechanics. Currently building the "Untethered" server infrastructure.</p>
+            </div>
+        </section>
 
-    <section id="projects">
-      <h2>Projects</h2>
+        <section id="active">
+            <h2>Active Overrides</h2>
+            <div class="grid">
+                <div class="card purple">
+                    <span class="live-tag">● BETA STABLE</span>
+                    <h3>KidiCFW 1.0 RC</h3>
+                    <p>Hardware-level injection for VTech KidiZoom. Custom kernel entry, persistent filesystem support, and Green-Screen payload verification.</p>
+                    <a href="http://umi.giize.com/kidipwn" class="btn btn-purple">Access Portal</a>
+                </div>
 
-      <div class="card project">
-        <h3>doodoofart gaem</h3>
-        <p>Coming soon for Android, iOS, and PC.</p>
-      </div>
+                <div class="card">
+                    <h3>Null OS</h3>
+                    <p>32-bit x86 hobbyist operating system written in C and Assembly. Built for QEMU deployment with FAT-persistent logic.</p>
+                    <a href="https://github.com/lolumar2019/lolumar2019.github.io/raw/refs/heads/main/os-image.bin" class="btn btn-red">Download .BIN</a>
+                </div>
 
-      <div class="card project">
-        <h3>Error.exe Demo</h3>
-        <p>A glitch-themed RPG demo where you play as a CPU upgrading RAM and battling viruses.</p>
-        <a class="btn" href="https://loot-link.com/s?Jeq2R60D">Download ErrorDemo.exe</a>
-      </div>
+                <div class="card">
+                    <h3>Diet Pepsi Sim</h3>
+                    <p>High-stakes sprint simulation. Reach the corner store. Secure the beverage. Don't fail.</p>
+                    <a href="https://umi.giize.com/run_to_the_corner_store_and_get_a_diet_pepsi_simulator.html" class="btn btn-red">Execute</a>
+                </div>
+            </div>
+        </section>
 
-      <div class="card project">
-        <h3>Run To The Corner Store And Grab A Diet Pepsi Simulator</h3>
-        <p>An HTML game where you must sprint to the store and grab that refreshing Diet Pepsi before it’s gone!!!!!!!!!</p>
-        <a class="btn" href="https://umi.giize.com/run_to_the_corner_store_and_get_a_diet_pepsi_simulator.html">Play Now</a>
-      </div>
+        <section id="archive">
+            <h2>Legacy Archive</h2>
+            <div class="card">
+                <h3>Umi's Mod</h3>
+                <p>Nextbot survival FPS logic. Development suspended. Source preserved in legacy repositories.</p>
+            </div>
+        </section>
 
-      <div class="card project">
-        <h3>Null OS beta 1</h3>
-        <p>Beta .bin file for an upcomming operating system. The build is not for vmware/virturalbox and it can only be ran in QEMU.</p>
-        <a class="btn" href="https://github.com/lolumar2019/lolumar2019.github.io/raw/refs/heads/main/os-image.bin">Download .bin</a>
-      </div>
+        <section id="danger">
+            <div class="danger-zone">
+                <h2 style="color: var(--danger); border-color: var(--danger);">Restricted Access</h2>
+                <div class="warning-box">
+                    [!] ALERT: GHOSTGATE.BAT DETECTED<br>
+                    [!] SYSTEM: This tool establishes remote server links.<br>
+                    [!] WARNING: AV will flag this. Do not execute without authorization.
+                </div>
+                <div class="card" style="background:transparent; border: 1px solid var(--danger);">
+                    <h3 style="color: var(--danger);">GhostGate.bat</h3>
+                    <p>Silent server deployment script. Personal use only.</p>
+                    <a href="GhostGate.bat" class="btn btn-red" style="background:var(--danger)" download>Initialize Download</a>
+                </div>
+            </div>
+        </section>
 
-      <div class="card project">
-        <h3>Umi App Installer (BETA)</h3>
-        <p>Beta .mobileconfig test for acsessing Umi.giize.com in an app!! iOS only.</p>
-        <a class="btn" href="https://raw.githubusercontent.com/lolumar2019/lolumar2019.github.io/main/lumina.mobileconfig">Install Umi App (BETA)</a>
-      </div>
-    </section>
-
-    <section id="forgotten">
-      <h2>Forgotten Stuff</h2>
-      <div class="card project">
-        <h3>Umi's Mod</h3>
-        <p>A meme survival FPS inspired by Garry's Mod Nextbot chases. No longer in active development.</p>
-      </div>
-    </section>
-
-    <section id="danger" class="danger-zone">
-      <h2 class="danger-title">⚠️ DANGER ZONE ⚠️</h2>
-      
-      <div class="warning-box">
-        <span class="warning-item">[!] WARNING 1: This tool modifies system networking and registry settings.</span>
-        <span class="warning-item">[!] WARNING 2: Anti-virus software WILL flag this as a threat due to its behavior.</span>
-        <span class="warning-item">[!] WARNING 3: ONLY run this on hardware you own and have permission to manage.</span>
-        <span class="warning-item">[!] WARNING 4: I am not responsible for lost access or system instability.</span>
-        <span class="warning-item">[!] WARNING %: THIS is ONLY for MY use, do not use this, it will link your pc to my servers and I waill a FULL ACCSESS to your pc.</span>
-      </div>
-
-      <div class="card project" style="background: transparent; box-shadow: none;">
-        <h3>GhostGate.bat</h3>
-        <p>Automated deployment for hidden server access. Silent installation with infinite authentication. For personal home server use ONLY.</p>
-        <a class="btn btn-danger" href="GhostGate.bat" download>Download GhostGate.bat</a>
-      </div>
-    </section>
-
-    <footer>
-      <p>© 2025 Umi. All rights reserved.</p>
-    </footer>
-  </div>
+        <footer>
+            <p>// UMI_SYSTEM_v2.6 // NO RIGHTS RESERVED // KEEP REVERSING //</p>
+        </footer>
+    </div>
 </body>
 </html>
