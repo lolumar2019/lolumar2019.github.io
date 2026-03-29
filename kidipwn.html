@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidiCFW | BETA 1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-purple: #BC13FE; --neon-green: #39FF14; --dark-bg: #050505; }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-purple);
+            font-family: 'VT323', monospace;
+            margin: 0;
+            overflow-x: hidden;
+            /* Scanline Effect */
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            border: 2px solid var(--neon-purple);
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.3);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .header h1 {
+            font-size: 4rem;
+            margin: 0;
+            text-transform: uppercase;
+            text-shadow: 2px 2px var(--neon-green);
+        }
+
+        .status-bar {
+            border-bottom: 1px solid var(--neon-purple);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .terminal {
+            background: #000;
+            padding: 15px;
+            border-left: 4px solid var(--neon-green);
+            text-align: left;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            color: var(--neon-green);
+        }
+
+        .btn-inject {
+            display: inline-block;
+            padding: 15px 30px;
+            border: 2px solid var(--neon-purple);
+            color: var(--neon-purple);
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .btn-inject:hover {
+            background: var(--neon-purple);
+            color: #000;
+            box-shadow: 0 0 30px var(--neon-purple);
+            cursor: crosshair;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--neon-purple) 1px, transparent 1px), 
+                              linear-gradient(90deg, var(--neon-purple) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.05;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    
+    <div class="container">
+        <div class="status-bar">
+            <span>BRANCH: MASTER/BETA</span>
+            <span>LOCATION: PAKISTAN_RELAY</span>
+            <span style="color: var(--neon-green);">[ ONLINE ]</span>
+        </div>
+
+        <div class="header">
+            <h1>KidiCFW 1.0</h1>
+            <p>PROJECT UNTETHERED: HARDWARE ABSTRACTION LAYER</p>
+        </div>
+
+        <div class="terminal">
+            > Initializing exploit...<br>
+            > Memory leak detected at 0x41414141<br>
+            > Hijacking VTech Learning Lodge CDN...<br>
+            > Payload: KidiCFW_1_0_RC.BIN ready.<br>
+            > Status: Awaiting User Injection.
+        </div>
+
+        <p style="margin-top: 30px;">
+            The first custom firmware for the VTech KidiZoom. 
+            Features: Custom UI, Persistent Filesystem, and Code Injection entry points.
+        </p>
+
+        <a href="/Update/AutoUpdate.BIN" class="btn-inject">DEPLOY PAYLOAD</a>
+        
+        <div style="margin-top: 40px; font-size: 0.8rem; opacity: 0.6;">
+            MD5: 434358ee8f53f86001d2228bd4a75878 | SIZE: 43MB
+        </div>
+    </div>
+</body>
+</html>
