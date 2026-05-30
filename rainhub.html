@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rain Hub Activation Portal</title>
+    <style>
+        body {
+            background-color: #0c0c0c;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+            margin: 0;
+        }
+        .box {
+            max-width: 450px;
+            margin: 0 auto;
+            background: #141414;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+        }
+        h2 {
+            margin-top: 0;
+            color: #00ffff;
+            letter-spacing: 1px;
+        }
+        p {
+            color: #aaaaaa;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .counter-box {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 20px 0;
+        }
+        #count {
+            color: #00ffff;
+        }
+        button {
+            background: #00ffff;
+            color: #000000;
+            border: none;
+            padding: 14px 28px;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        button:hover:not(:disabled) {
+            background: #00cccc;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+        }
+        button:disabled {
+            background: #333333;
+            color: #777777;
+            cursor: default;
+        }
+        .key-out {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #1a1a1a;
+            border: 2px dashed #00ff00;
+            border-radius: 6px;
+        }
+        code {
+            display: block;
+            font-size: 22px;
+            color: #ffffff;
+            background: #000000;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 15px 0;
+            letter-spacing: 2px;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>umi.giize.com/rainhub</h2>
+    <p>Complete the authentication verification phase below to generate your 48-Hour access key.</p>
+    
+    <div class="counter-box">Clicks Remaining: <span id="count">50</span></div>
+    <button id="click-btn">CLICK TO PROGRESS</button>
+
+    <div id="display" class="key-out">
+        <p style="color: #00ff00; font-weight: bold; font-size: 16px; margin-top: 0;">ACCESS GRANTED!</p>
+        <p>Copy this key string directly into the game interface prompt:</p>
+        <code id="token-field">------</code>
+        <p style="font-size: 11px; color: #777777; margin-bottom: 0;">This key will lock to your account profile once verified in-game.</p>
+    </div>
+</div>
+
+<script>
+    let clicks = 0;
+    const targetClicks = 50;
+    
+    const btn = document.getElementById('click-btn');
+    const label = document.getElementById('count');
+    const display = document.getElementById('display');
+    const tokenField = document.getElementById('token-field');
+
+    btn.addEventListener('click', () => {
+        clicks++;
+        let remaining = targetClicks - clicks;
+        
+        if (remaining > 0) {
+            label.textContent = remaining;
+        } else {
+            label.textContent = "0";
+            btn.disabled = true;
+            btn.textContent = "GENERATING SECURE KEY...";
+
+            fetch('/api/request-key', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    btn.textContent = "VERIFIED";
+                    tokenField.textContent = data.key;
+                    display.style.display = 'block';
+                } else {
+                    btn.textContent = "SERVER DATABASE ERROR";
+                }
+            })
+            .catch(() => { 
+                btn.textContent = "NETWORK CONNECTION FAULT"; 
+            });
+        }
+    });
+</script>
+</body>
+</html>
