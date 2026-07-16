@@ -2,41 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>System</title>
+    <title>pwnstation</title>
     <script src="coi-serviceworker.js"></script>
     <script src="libv86.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #fff; overflow: hidden; }
+        #pwn-button {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px; z-index: 999; cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
-<button id="pwn-button" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; z-index:999;">CLICK ME TO PWN!!!</button>
+<button id="pwn-button">CLICK ME TO PWN!!!</button>
+<div id="screen_container"></div>
 
 <script>
 "use strict";
 
 document.getElementById('pwn-button').addEventListener('click', function() {
-    console.log("Button clicked! Attempting to start emulator...");
+    // 1. Force background to black
+    document.body.style.backgroundColor = "#000";
     
-    // Check if COOP/COEP headers are active
-    if (!window.crossOriginIsolated) {
-        console.error("CRITICAL ERROR: Page is not crossOriginIsolated. Emulator cannot start.");
-        alert("Error: COOP/COEP headers not active. Please hard-refresh (Ctrl+F5).");
-        return;
-    }
+    // 2. Force Fullscreen
+    document.documentElement.requestFullscreen().catch(err => {
+        console.log("Fullscreen request failed");
+    });
 
-    try {
-        var emulator = new V86({
-            wasm_path: "v86.wasm",
-            bios: { url: "seabios.bin" },
-            vga_bios: { url: "vgabios.bin" },
-            cdrom: { url: "linux.iso" },
-            screen_container: document.body,
-            autostart: true,
-            disable_keyboard: true
-        });
-        console.log("Emulator initialized!");
-    } catch (e) {
-        console.error("V86 failed to initialize:", e);
-    }
+    // 3. Initialize Emulator
+    var emulator = new V86({
+        wasm_path: "v86.wasm",
+        bios: { url: "seabios.bin" },
+        vga_bios: { url: "vgabios.bin" },
+        cdrom: { url: "linux.iso" },
+        screen_container: document.getElementById("screen_container"),
+        autostart: true,
+        disable_keyboard: true
+    });
+
+    this.style.display = 'none'; // Hide button
 });
 </script>
 
