@@ -2,15 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>System</title>
+    <title>ILinux</title>
     <script src="coi-serviceworker.js"></script>
     <script src="libv86.js"></script>
     <style>
-        /* Start with white background */
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #fff; overflow: hidden; }
+        
+        /* Ensure the container is hidden until triggered */
+        #screen_container { width: 100vw; height: 100vh; background: #000; display: none; }
+        
         #pwn-button {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            padding: 20px; z-index: 999; cursor: pointer;
+            padding: 20px; z-index: 9999; cursor: pointer;
         }
     </style>
 </head>
@@ -22,28 +25,18 @@
 <script>
 "use strict";
 
-// Cross-browser fullscreen function
-function enterFullscreen(element) {
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) { /* Safari */
-        element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) { /* IE11 */
-        element.msRequestFullscreen();
-    }
-}
-
 document.getElementById('pwn-button').addEventListener('click', function() {
-    // 1. Force background to black
+    // 1. Prepare UI
     document.body.style.backgroundColor = "#000";
-    
-    // 2. Force Fullscreen on the entire document
-    enterFullscreen(document.documentElement);
-
-    // 3. Hide button immediately
+    document.getElementById('screen_container').style.display = 'block';
     this.style.display = 'none';
 
-    // 4. Initialize Emulator
+    // 2. Force Fullscreen
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+
+    // 3. Initialize Emulator
     var emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
