@@ -2,57 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Basic Emulator</title>
     <style>
-        /* Force the entire page to black and hide the cursor */
+        /* Force black background on everything */
         body, html { 
             margin: 0; padding: 0; height: 100%; width: 100%; 
-            background: #000; overflow: hidden; cursor: none; 
+            background: #000 !important; 
         }
-        /* Ensure the container fills the viewport */
+        
+        /* Ensure the container is black */
         #screen_container { 
-            width: 100vw; height: 100vh; background: #000; 
-        }
-        /* Force the emulator canvas to fill the screen */
-        canvas { 
-            width: 100vw !important; height: 100vh !important; 
-            display: block !important; 
+            background: #000 !important; 
         }
     </style>
-    <!-- Include the service worker for COOP/COEP headers -->
-    <script src="coi-serviceworker.js"></script>
     <script src="https://copy.sh/v86/build/libv86.js"></script>
 </head>
-<body id="body">
-
-<div id="screen_container">
-    <div style="white-space: pre; font: 14px monospace; line-height: 14px"></div>
-    <canvas></canvas>
-</div>
+<body>
 
 <script>
 "use strict";
 
-window.onload = function() {
+window.onload = function()
+{
     var emulator = window.emulator = new V86({
         wasm_path: "https://copy.sh/v86/build/v86.wasm",
         memory_size: 32 * 1024 * 1024,
         vga_memory_size: 2 * 1024 * 1024,
         screen_container: document.getElementById("screen_container"),
-        bios: { url: "https://copy.sh/v86/bios/seabios.bin" },
-        vga_bios: { url: "https://copy.sh/v86/bios/vgabios.bin" },
-        cdrom: { url: "https://copy.sh/v86/images/linux.iso" },
+        bios: {
+            url: "https://copy.sh/v86/bios/seabios.bin",
+        },
+        vga_bios: {
+            url: "https://copy.sh/v86/bios/vgabios.bin",
+        },
+        cdrom: {
+            url: "https://copy.sh/v86/images/linux.iso",
+        },
         autostart: true,
     });
-};
-
-// Fullscreen trigger
-document.getElementById('body').addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    }
-});
+}
 </script>
+
+<!-- Screen container remains the same as the original example -->
+<div id="screen_container">
+    <div style="white-space: pre; font: 14px monospace; line-height: 14px"></div>
+    <canvas style="display: none"></canvas>
+</div>
 
 </body>
 </html>
