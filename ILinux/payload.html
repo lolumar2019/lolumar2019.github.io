@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>System</title>
     <style>
+        /* Force black background and hide scrollbars */
         body, html { 
             margin: 0; padding: 0; height: 100%; width: 100%; 
             background: #000 !important; overflow: hidden; cursor: none; 
@@ -16,10 +17,10 @@
             display: block !important; background: #000; 
         }
     </style>
-    <!-- Service worker to enable COOP/COEP headers -->
+    <!-- 1. Service worker MUST load before any other scripts -->
     <script src="coi-serviceworker.js"></script>
-    <!-- Use a local or CDN-hosted libv86.js -->
-    <script src="https://copy.sh/v86/build/libv86.js"></script>
+    <!-- 2. Local engine script -->
+    <script src="libv86.js"></script>
 </head>
 <body id="body">
 
@@ -29,8 +30,15 @@
 "use strict";
 
 window.onload = function() {
+    // If crossOriginIsolated is false, the service worker hasn't loaded yet.
+    // This reload ensures the headers (COOP/COEP) are applied.
+    if (!window.crossOriginIsolated) {
+        setTimeout(() => { window.location.reload(); }, 500);
+        return;
+    }
+
     var emulator = window.emulator = new V86({
-        // Relative paths (files must be in the same folder as this HTML)
+        // Files are local, so we use relative paths
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
         vga_bios: { url: "vgabios.bin" },
@@ -43,7 +51,7 @@ window.onload = function() {
     });
 };
 
-// Fullscreen trigger
+// Toggle fullscreen on click to improve the experience
 document.getElementById('body').addEventListener('click', () => {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
