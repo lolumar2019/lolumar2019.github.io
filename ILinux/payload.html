@@ -55,12 +55,15 @@ document.getElementById('pwn-button').addEventListener('click', function() {
         disable_keyboard: true
     });
 
-    // 4. Delayed Swap
+   // 4. Delayed Swap
     setTimeout(function() {
-        emulator.cdrom_insert({ url: "image.iso" });
-        console.log("Image swapped to image.iso");
+        console.log("Attempting to swap to image.iso...");
+        
+        // Correct way to change the CDROM in V86
+        emulator.bus.send("cdrom-insert", { url: "image.iso" });
+        
+        console.log("Swap command sent.");
     }, 1000);
-});
 </script>
 
 </body>
