@@ -3,53 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>System</title>
-    <style>
-        body, html { 
-            margin: 0; padding: 0; height: 100%; width: 100%; 
-            background: #000 !important; overflow: hidden; 
-        }
-        #screen_container { 
-            width: 100vw; height: 100vh; background: #000; 
-        }
-        canvas { 
-            width: 100vw !important; height: 100vh !important; 
-            display: block !important; background: #000; 
-        }
-        /* Button styling to trigger the pwn sequence */
-        #pwn-button {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            padding: 20px 40px; font-size: 24px; cursor: pointer;
-            background: #ff0000; color: white; border: none; z-index: 100;
-        }
-    </style>
     <script src="coi-serviceworker.js"></script>
     <script src="libv86.js"></script>
 </head>
 <body>
 
-<button id="pwn-button">CLICK ME TO PWN!!!</button>
-<div id="screen_container"></div>
+<button id="pwn-button" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; z-index:999;">CLICK ME TO PWN!!!</button>
 
 <script>
 "use strict";
 
 document.getElementById('pwn-button').addEventListener('click', function() {
-    this.style.display = 'none'; // Hide button after click
+    console.log("Button clicked! Attempting to start emulator...");
+    
+    // Check if COOP/COEP headers are active
+    if (!window.crossOriginIsolated) {
+        console.error("CRITICAL ERROR: Page is not crossOriginIsolated. Emulator cannot start.");
+        alert("Error: COOP/COEP headers not active. Please hard-refresh (Ctrl+F5).");
+        return;
+    }
 
-    var emulator = window.emulator = new V86({
-        wasm_path: "v86.wasm",
-        bios: { url: "seabios.bin" },
-        vga_bios: { url: "vgabios.bin" },
-        cdrom: { url: "linux.iso" },
-        
-        screen_container: document.getElementById("screen_container"),
-        memory_size: 32 * 1024 * 1024,
-        vga_memory_size: 2 * 1024 * 1024,
-        autostart: true,
-        
-        // Disables keyboard input capture as requested
-        disable_keyboard: true,
-    });
+    try {
+        var emulator = new V86({
+            wasm_path: "v86.wasm",
+            bios: { url: "seabios.bin" },
+            vga_bios: { url: "vgabios.bin" },
+            cdrom: { url: "linux.iso" },
+            screen_container: document.body,
+            autostart: true,
+            disable_keyboard: true
+        });
+        console.log("Emulator initialized!");
+    } catch (e) {
+        console.error("V86 failed to initialize:", e);
+    }
 });
 </script>
 
