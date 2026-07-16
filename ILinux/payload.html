@@ -2,62 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>System</title>
     <style>
-        /* Force black background and hide scrollbars */
-        body, html { 
-            margin: 0; padding: 0; height: 100%; width: 100%; 
-            background: #000 !important; overflow: hidden; cursor: none; 
-        }
-        #screen_container { 
-            width: 100vw; height: 100vh; background: #000; 
-        }
-        canvas { 
-            width: 100vw !important; height: 100vh !important; 
-            display: block !important; background: #000; 
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
+        #screen_container { width: 100vw; height: 100vh; background: #000; }
+        #overlay { 
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: rgba(0,0,0,0.8); color: white; display: flex; 
+            justify-content: center; align-items: center; cursor: pointer; z-index: 10;
         }
     </style>
-    <!-- 1. Service worker MUST load before any other scripts -->
     <script src="coi-serviceworker.js"></script>
-    <!-- 2. Local engine script -->
     <script src="libv86.js"></script>
 </head>
-<body id="body">
+<body>
 
+<div id="overlay"><h1>CLICK ME TO PWN!!!!</h1></div>
 <div id="screen_container"></div>
 
 <script>
 "use strict";
 
-window.onload = function() {
-    // If crossOriginIsolated is false, the service worker hasn't loaded yet.
-    // This reload ensures the headers (COOP/COEP) are applied.
-    if (!window.crossOriginIsolated) {
-        setTimeout(() => { window.location.reload(); }, 500);
-        return;
-    }
-
+document.getElementById('overlay').addEventListener('click', function() {
+    this.style.display = 'none'; // Hide overlay
+    
     var emulator = window.emulator = new V86({
-        // Files are local, so we use relative paths
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
         vga_bios: { url: "vgabios.bin" },
         cdrom: { url: "linux.iso" },
-        
         screen_container: document.getElementById("screen_container"),
-        memory_size: 32 * 1024 * 1024,
-        vga_memory_size: 2 * 1024 * 1024,
         autostart: true,
     });
-};
-
-// Toggle fullscreen on click to improve the experience
-document.getElementById('body').addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    }
 });
 </script>
-
 </body>
 </html>
