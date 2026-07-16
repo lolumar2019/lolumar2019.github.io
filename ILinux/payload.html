@@ -7,7 +7,17 @@
     <script src="libv86.js"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #fff; overflow: hidden; }
-        #screen_container { width: 100vw; height: 100vh; background: #000; display: none; }
+        
+        /* Forces the screen to fill the resolution while keeping aspect ratio */
+        #screen_container { 
+            width: 100vw; height: 100vh; background: #000; 
+            display: none; position: relative;
+        }
+        canvas { 
+            width: 100% !important; height: 100% !important; 
+            object-fit: contain; /* Scales to resolution */
+        }
+
         #overlay { 
             position: absolute; top: 10px; right: 10px; 
             color: white; font-size: 24px; display: none; z-index: 9999;
@@ -25,6 +35,7 @@
 <button id="pwn-button">CLICK ME TO LAUNCH LINUX</button>
 <div id="overlay">
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/330px-Tux.svg.png" alt="Tux">
+    1 CPU
 </div>
 <div id="screen_container"></div>
 
@@ -32,18 +43,15 @@
 "use strict";
 
 document.getElementById('pwn-button').addEventListener('click', function() {
-    // 1. UI Setup
     document.body.style.backgroundColor = "#000";
     document.getElementById('screen_container').style.display = 'block';
     document.getElementById('overlay').style.display = 'block';
     this.style.display = 'none';
 
-    // 2. Fullscreen
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-    // 3. Init Emulator
     var emulator = window.emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
@@ -54,12 +62,16 @@ document.getElementById('pwn-button').addEventListener('click', function() {
         disable_keyboard: true
     });
 
-  // 4. Delayed Swap
-    setTimeout(function() {
-        console.log("Attempting to swap to image.iso...");
-        emulator.bus.send("cdrom-insert", { url: "image.iso" });
-        console.log("Swap command sent.");
-    }, 1000);
-
-}); // <--- This closes the addEventListener
+    // Use a listener to ensure the bus is ready before swapping
+    emulator.add_listener("emulator-ready", function() {
+        setTimeout(function() {
+            // Force swap using the bus controller
+            emulator.bus.send("ide0-1-insert", { url: "image.iso" });
+            console.log("Forced disk swap initiated.");
+        }, 1000);
+    });
+});
 </script>
+
+</body>
+</html>
