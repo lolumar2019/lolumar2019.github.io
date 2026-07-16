@@ -2,51 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>System</title>
     <style>
-        /* Force black background on everything */
         body, html { 
             margin: 0; padding: 0; height: 100%; width: 100%; 
-            background: #000 !important; 
+            background: #000 !important; overflow: hidden; cursor: none; 
         }
-        
-        /* Ensure the container is black */
         #screen_container { 
-            background: #000 !important; 
+            width: 100vw; height: 100vh; background: #000; 
+        }
+        canvas { 
+            width: 100vw !important; height: 100vh !important; 
+            display: block !important; background: #000; 
         }
     </style>
+    <!-- Service worker to enable COOP/COEP headers -->
+    <script src="coi-serviceworker.js"></script>
+    <!-- Use a local or CDN-hosted libv86.js -->
     <script src="https://copy.sh/v86/build/libv86.js"></script>
 </head>
-<body>
+<body id="body">
+
+<div id="screen_container"></div>
 
 <script>
 "use strict";
 
-window.onload = function()
-{
+window.onload = function() {
     var emulator = window.emulator = new V86({
-        wasm_path: "https://copy.sh/v86/build/v86.wasm",
+        // Relative paths (files must be in the same folder as this HTML)
+        wasm_path: "v86.wasm",
+        bios: { url: "seabios.bin" },
+        vga_bios: { url: "vgabios.bin" },
+        cdrom: { url: "linux.iso" },
+        
+        screen_container: document.getElementById("screen_container"),
         memory_size: 32 * 1024 * 1024,
         vga_memory_size: 2 * 1024 * 1024,
-        screen_container: document.getElementById("screen_container"),
-        bios: {
-            url: "https://copy.sh/v86/bios/seabios.bin",
-        },
-        vga_bios: {
-            url: "https://copy.sh/v86/bios/vgabios.bin",
-        },
-        cdrom: {
-            url: "https://copy.sh/v86/images/linux.iso",
-        },
         autostart: true,
     });
-}
-</script>
+};
 
-<!-- Screen container remains the same as the original example -->
-<div id="screen_container">
-    <div style="white-space: pre; font: 14px monospace; line-height: 14px"></div>
-    <canvas style="display: none"></canvas>
-</div>
+// Fullscreen trigger
+document.getElementById('body').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    }
+});
+</script>
 
 </body>
 </html>
