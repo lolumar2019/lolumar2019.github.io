@@ -2,13 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>System</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
-        #screen_container { width: 100vw; height: 100vh; background: #000; }
-        #overlay { 
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: rgba(0,0,0,0.8); color: white; display: flex; 
-            justify-content: center; align-items: center; cursor: pointer; z-index: 10;
+        body, html { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            background: #000 !important; overflow: hidden; 
+        }
+        #screen_container { 
+            width: 100vw; height: 100vh; background: #000; 
+        }
+        canvas { 
+            width: 100vw !important; height: 100vh !important; 
+            display: block !important; background: #000; 
         }
     </style>
     <script src="coi-serviceworker.js"></script>
@@ -16,24 +21,28 @@
 </head>
 <body>
 
-<div id="overlay"><h1>CLICK ME TO PWN!!!!</h1></div>
 <div id="screen_container"></div>
 
 <script>
 "use strict";
 
-document.getElementById('overlay').addEventListener('click', function() {
-    this.style.display = 'none'; // Hide overlay
-    
+window.onload = function() {
     var emulator = window.emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
         vga_bios: { url: "vgabios.bin" },
         cdrom: { url: "linux.iso" },
+        
         screen_container: document.getElementById("screen_container"),
+        memory_size: 32 * 1024 * 1024,
+        vga_memory_size: 2 * 1024 * 1024,
         autostart: true,
+        
+        // Disables keyboard input capture
+        disable_keyboard: true,
     });
-});
+};
 </script>
+
 </body>
 </html>
