@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>pwnstation</title>
+    <title>System</title>
     <script src="coi-serviceworker.js"></script>
     <script src="libv86.js"></script>
     <style>
+        /* Start with white background */
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #fff; overflow: hidden; }
         #pwn-button {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -21,16 +22,28 @@
 <script>
 "use strict";
 
+// Cross-browser fullscreen function
+function enterFullscreen(element) {
+    if (element.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) { /* Safari */
+        element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) { /* IE11 */
+        element.msRequestFullscreen();
+    }
+}
+
 document.getElementById('pwn-button').addEventListener('click', function() {
     // 1. Force background to black
     document.body.style.backgroundColor = "#000";
     
-    // 2. Force Fullscreen
-    document.documentElement.requestFullscreen().catch(err => {
-        console.log("Fullscreen request failed");
-    });
+    // 2. Force Fullscreen on the entire document
+    enterFullscreen(document.documentElement);
 
-    // 3. Initialize Emulator
+    // 3. Hide button immediately
+    this.style.display = 'none';
+
+    // 4. Initialize Emulator
     var emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
@@ -40,8 +53,6 @@ document.getElementById('pwn-button').addEventListener('click', function() {
         autostart: true,
         disable_keyboard: true
     });
-
-    this.style.display = 'none'; // Hide button
 });
 </script>
 
