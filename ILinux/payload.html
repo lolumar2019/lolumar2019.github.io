@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; cursor: none; }
+        #screen_container { width: 100vw; height: 100vh; background: #000; }
+        canvas { width: 100vw !important; height: 100vh !important; display: block !important; }
+    </style>
+    <!-- 1. Include the Service Worker to fix CORS/COOP/COEP -->
+    <script src="https://cdn.jsdelivr.net/gh/gzuidhof/coi-serviceworker@1.0.0/coi-serviceworker.min.js"></script>
+    <!-- 2. Use the official libv86 build -->
+    <script src="https://copy.sh/v86/build/libv86.js"></script>
+</head>
+<body id="body">
+
+<div id="screen_container"></div>
+
+<script>
+"use strict";
+
+window.onload = function() {
+    var emulator = window.emulator = new V86({
+        wasm_path: "https://github.com/progrium/v86-system/raw/refs/heads/main/assets/v86.wasm",
+        screen_container: document.getElementById("screen_container"),
+        bios: { url: "https://github.com/progrium/v86-system/raw/refs/heads/main/assets/seabios.bin" },
+        vga_bios: { url: "https://github.com/progrium/v86-system/raw/refs/heads/main/assets/vgabios.bin" },
+        cdrom: { url: "https://copy.sh/v86/images/linux.iso" },
+        autostart: true,
+    });
+};
+
+// Fullscreen trigger
+document.getElementById('body').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    }
+    document.body.style.cursor = 'none';
+});
+</script>
+
+</body>
+</html>
