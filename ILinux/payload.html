@@ -8,25 +8,29 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #fff; overflow: hidden; }
         
-        /* Forces the screen to fill the resolution while keeping aspect ratio */
         #screen_container { 
             width: 100vw; height: 100vh; background: #000; 
             display: none; position: relative;
         }
         canvas { 
             width: 100% !important; height: 100% !important; 
-            object-fit: contain; /* Scales to resolution */
+            object-fit: contain; 
+            /* Prevents mobile browsers from triggering touch events on the canvas */
+            touch-action: none; 
+            -webkit-user-select: none; user-select: none;
         }
 
         #overlay { 
             position: absolute; top: 10px; right: 10px; 
-            color: white; font-size: 24px; display: none; z-index: 9999;
-            text-align: right;
+            display: none; z-index: 9999;
         }
-        #overlay img { width: 50px; display: block; margin-left: auto; }
+        #overlay img { width: 50px; display: block; }
+        
         #pwn-button {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             padding: 20px; z-index: 10000; cursor: pointer;
+            /* Prevents the virtual keyboard on mobile from showing up on focus */
+            -webkit-user-modify: read-only;
         }
     </style>
 </head>
@@ -35,7 +39,6 @@
 <button id="pwn-button">CLICK ME TO LAUNCH LINUX</button>
 <div id="overlay">
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/330px-Tux.svg.png" alt="Tux">
-    1 CPU
 </div>
 <div id="screen_container"></div>
 
@@ -52,6 +55,7 @@ document.getElementById('pwn-button').addEventListener('click', function() {
     if (el.requestFullscreen) el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
+    // Init Emulator with specific keyboard focus settings
     var emulator = window.emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
@@ -59,15 +63,14 @@ document.getElementById('pwn-button').addEventListener('click', function() {
         cdrom: { url: "linux.iso" },
         screen_container: document.getElementById("screen_container"),
         autostart: true,
-        disable_keyboard: true
+        // Enforce physical keyboard interaction only
+        disable_mouse: true,
+        disable_keyboard: false 
     });
 
-    // Use a listener to ensure the bus is ready before swapping
     emulator.add_listener("emulator-ready", function() {
         setTimeout(function() {
-            // Force swap using the bus controller
             emulator.bus.send("ide0-1-insert", { url: "image.iso" });
-            console.log("Forced disk swap initiated.");
         }, 1000);
     });
 });
