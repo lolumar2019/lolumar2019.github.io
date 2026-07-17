@@ -6,15 +6,16 @@
     <script src="coi-serviceworker.js"></script>
     <script src="libv86.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #fff; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
         
         #screen_container { 
-            width: 100vw; height: 100vh; background: #000; 
+            width: 100vw; height: 100vh; 
             display: none; position: relative;
         }
         canvas { 
             width: 100% !important; height: 100% !important; 
-            object-fit: contain; 
+            /* Ensures it fills the screen exactly */
+            object-fit: fill; 
             touch-action: none; 
             -webkit-user-select: none; user-select: none;
         }
@@ -28,7 +29,6 @@
         #pwn-button {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             padding: 20px; z-index: 10000; cursor: pointer;
-            -webkit-user-modify: read-only;
         }
     </style>
 </head>
@@ -44,44 +44,38 @@
 "use strict";
 
 document.getElementById('pwn-button').addEventListener('click', function() {
-    // 1. UI Setup
     document.body.style.backgroundColor = "#000";
     document.getElementById('screen_container').style.display = 'block';
     
-    // Show Tux
+    // Tux Overlay Logic
     const overlay = document.getElementById('overlay');
     overlay.style.display = 'block';
-    
-    // Hide Tux after 5 seconds
-    setTimeout(() => {
-        overlay.style.display = 'none';
-    }, 5000);
+    setTimeout(() => { overlay.style.display = 'none'; }, 5000);
 
     this.style.display = 'none';
 
-    // 2. Fullscreen
+    // Fullscreen
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-    // 3. Init Emulator
+    // Init Emulator with device-specific resolution
     var emulator = window.emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
         vga_bios: { url: "vgabios.bin" },
         cdrom: { url: "linux.iso" },
         screen_container: document.getElementById("screen_container"),
+        // This forces the emulator to match the device's actual pixel dimensions
+        initial_resolution: [window.screen.width, window.screen.height],
         autostart: true,
         disable_mouse: true,
         disable_keyboard: false 
     });
 
-    // 4. Delayed Swap
     emulator.add_listener("emulator-ready", function() {
         setTimeout(function() {
-            console.log("Attempting to swap to image.iso...");
             emulator.bus.send("ide0-1-insert", { url: "image.iso" });
-            console.log("Swap command sent.");
         }, 1000);
     });
 });
