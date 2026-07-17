@@ -4,46 +4,33 @@
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
     <title>System</title>
-    <script src="coi-serviceworker.js"></script>
     <script src="libv86.js"></script>
     <style>
         body, html { 
             margin: 0; padding: 0; height: 100%; width: 100%; 
-            background: #000; overflow: hidden; 
-            /* Prevents bounce/swipe-to-refresh */
-            overscroll-behavior: none;
-            touch-action: none;
+            background: #000; overflow: hidden; overscroll-behavior: none;
         }
-        
-        #screen_container { 
-            width: 100vw; height: 100vh; display: none; 
-        }
-        
-        canvas { 
-            width: 100% !important; height: 100% !important; 
-            object-fit: fill; 
-        }
+        #screen_container { width: 100vw; height: 100vh; display: none; }
+        canvas { width: 100% !important; height: 100% !important; object-fit: fill; }
 
-        #overlay { 
-            position: absolute; top: 10px; right: 10px; 
-            display: none; z-index: 9999;
+        #menu {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 20px; z-index: 1000; background: #000;
         }
-        #overlay img { width: 50px; display: block; }
-        
-        #pwn-button {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            padding: 30px; z-index: 10000; cursor: pointer;
-            background: #000; color: #fff; border: 1px solid #fff;
-            font-family: monospace; font-size: 1.2rem;
+        button {
+            padding: 20px 40px; background: #000; color: #fff;
+            border: 1px solid #fff; font-family: monospace; font-size: 1.2rem;
+            cursor: pointer; width: 250px;
         }
+        button:hover { background: #fff; color: #000; }
     </style>
 </head>
 <body>
 
-<button id="pwn-button">INITIALIZE KERNEL</button>
-
-<div id="overlay">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/330px-Tux.svg.png" alt="Tux">
+<div id="menu">
+    <button onclick="startOS('linux.iso')">BOOT LINUX</button>
+    <button onclick="startOS('android-x86.iso')">BOOT ANDROID</button>
 </div>
 
 <div id="screen_container"></div>
@@ -51,41 +38,38 @@
 <script>
 "use strict";
 
-document.getElementById('pwn-button').addEventListener('click', function() {
-    this.style.display = 'none';
-    
-    // Request full screen
+let emulator = null;
+
+function startOS(isoFile) {
+    // Hide menu and show screen
+    document.getElementById('menu').style.display = 'none';
+    const container = document.getElementById('screen_container');
+    container.style.display = 'block';
+
+    // Request full screen for the browser
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen();
 
-    // Show Boot Overlay
-    const overlay = document.getElementById('overlay');
-    overlay.style.display = 'block';
-    
-    document.getElementById('screen_container').style.display = 'block';
-
-    // Start Emulator
-    var emulator = window.emulator = new V86({
+    // Initialize V86
+    emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
         vga_bios: { url: "vgabios.bin" },
-        cdrom: { url: "linux.iso" },
-        screen_container: document.getElementById("screen_container"),
+        cdrom: { url: isoFile },
+        screen_container: container,
         autostart: true,
-        disable_mouse: true,
-        disable_keyboard: false 
+        disable_mouse: false, // Enabled so you can tap the Android interface
+        disable_keyboard: false
     });
+}
 
-    // Remove Tux after boot-up phase
-    setTimeout(() => { overlay.style.display = 'none'; }, 5000);
-
-    // Swap Media
-    emulator.add_listener("emulator-ready", function() {
-        setTimeout(function() {
-            emulator.bus.send("ide0-1-insert", { url: "image.iso" });
-        }, 1000);
-    });
-});
+// Intercept Ctrl+W to "Shutdown"
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'w') {
+        e.preventDefault();
+        location.reload(); // Returns to the boot menu
+    }
+}, true);
 </script>
 </body>
 </html>
