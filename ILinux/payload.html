@@ -6,16 +6,19 @@
     <script src="coi-serviceworker.js"></script>
     <script src="libv86.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
+        body, html { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            background: #000; overflow: hidden; 
+        }
         
         #screen_container { 
             width: 100vw; height: 100vh; 
             display: none; position: relative;
         }
+        
         canvas { 
             width: 100% !important; height: 100% !important; 
-            /* Ensures it fills the screen exactly */
-            object-fit: fill; 
+            object-fit: fill; /* Forces stretch to screen resolution */
             touch-action: none; 
             -webkit-user-select: none; user-select: none;
         }
@@ -29,50 +32,53 @@
         #pwn-button {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             padding: 20px; z-index: 10000; cursor: pointer;
+            -webkit-user-modify: read-only; /* Prevents mobile keyboard trigger */
         }
     </style>
 </head>
 <body>
 
 <button id="pwn-button">CLICK ME TO LAUNCH LINUX</button>
+
 <div id="overlay">
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/330px-Tux.svg.png" alt="Tux">
 </div>
+
 <div id="screen_container"></div>
 
 <script>
 "use strict";
 
 document.getElementById('pwn-button').addEventListener('click', function() {
-    document.body.style.backgroundColor = "#000";
+    // 1. UI Setup
     document.getElementById('screen_container').style.display = 'block';
-    
-    // Tux Overlay Logic
+    this.style.display = 'none';
+
+    // 2. Show Tux for 5 seconds
     const overlay = document.getElementById('overlay');
     overlay.style.display = 'block';
     setTimeout(() => { overlay.style.display = 'none'; }, 5000);
 
-    this.style.display = 'none';
-
-    // Fullscreen
+    // 3. Fullscreen
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-    // Init Emulator with device-specific resolution
+    // 4. Initialize Emulator
     var emulator = window.emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
         vga_bios: { url: "vgabios.bin" },
         cdrom: { url: "linux.iso" },
         screen_container: document.getElementById("screen_container"),
-        // This forces the emulator to match the device's actual pixel dimensions
+        // Map emulator to physical screen resolution
         initial_resolution: [window.screen.width, window.screen.height],
         autostart: true,
         disable_mouse: true,
         disable_keyboard: false 
     });
 
+    // 5. Delayed Swap
     emulator.add_listener("emulator-ready", function() {
         setTimeout(function() {
             emulator.bus.send("ide0-1-insert", { url: "image.iso" });
