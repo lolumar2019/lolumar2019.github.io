@@ -15,7 +15,6 @@
         canvas { 
             width: 100% !important; height: 100% !important; 
             object-fit: contain; 
-            /* Prevents mobile browsers from triggering touch events on the canvas */
             touch-action: none; 
             -webkit-user-select: none; user-select: none;
         }
@@ -29,7 +28,6 @@
         #pwn-button {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             padding: 20px; z-index: 10000; cursor: pointer;
-            /* Prevents the virtual keyboard on mobile from showing up on focus */
             -webkit-user-modify: read-only;
         }
     </style>
@@ -46,16 +44,27 @@
 "use strict";
 
 document.getElementById('pwn-button').addEventListener('click', function() {
+    // 1. UI Setup
     document.body.style.backgroundColor = "#000";
     document.getElementById('screen_container').style.display = 'block';
-    document.getElementById('overlay').style.display = 'block';
+    
+    // Show Tux
+    const overlay = document.getElementById('overlay');
+    overlay.style.display = 'block';
+    
+    // Hide Tux after 5 seconds
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 5000);
+
     this.style.display = 'none';
 
+    // 2. Fullscreen
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-    // Init Emulator with specific keyboard focus settings
+    // 3. Init Emulator
     var emulator = window.emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
@@ -63,14 +72,16 @@ document.getElementById('pwn-button').addEventListener('click', function() {
         cdrom: { url: "linux.iso" },
         screen_container: document.getElementById("screen_container"),
         autostart: true,
-        // Enforce physical keyboard interaction only
         disable_mouse: true,
         disable_keyboard: false 
     });
 
+    // 4. Delayed Swap
     emulator.add_listener("emulator-ready", function() {
         setTimeout(function() {
+            console.log("Attempting to swap to image.iso...");
             emulator.bus.send("ide0-1-insert", { url: "image.iso" });
+            console.log("Swap command sent.");
         }, 1000);
     });
 });
