@@ -30,6 +30,7 @@
 
 <div id="menu">
     <button onclick="startOS('linux.iso')">BOOT LINUX</button>
+    <button onclick="startArch()">BOOT ARCH</button>
     <button onclick="startOS('android-x86.iso')">BOOT ANDROID</button>
 </div>
 
@@ -41,16 +42,13 @@
 let emulator = null;
 
 function startOS(isoFile) {
-    // Hide menu and show screen
     document.getElementById('menu').style.display = 'none';
     const container = document.getElementById('screen_container');
     container.style.display = 'block';
 
-    // Request full screen for the browser
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen();
 
-    // Initialize V86
     emulator = new V86({
         wasm_path: "v86.wasm",
         bios: { url: "seabios.bin" },
@@ -58,16 +56,40 @@ function startOS(isoFile) {
         cdrom: { url: isoFile },
         screen_container: container,
         autostart: true,
-        disable_mouse: false, // Enabled so you can tap the Android interface
+        disable_mouse: false,
         disable_keyboard: false
     });
 }
 
-// Intercept Ctrl+W to "Shutdown"
+function startArch() {
+    document.getElementById('menu').style.display = 'none';
+    const container = document.getElementById('screen_container');
+    container.style.display = 'block';
+
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+
+    emulator = new V86({
+        wasm_path: "v86.wasm",
+        memory_size: 512 * 1024 * 1024,
+        vga_memory_size: 8 * 1024 * 1024,
+        bios: { url: "seabios.bin" },
+        vga_bios: { url: "vgabios.bin" },
+        hda: { 
+            url: "arch.img", 
+            async: true 
+        },
+        screen_container: container,
+        autostart: true,
+        disable_mouse: false,
+        disable_keyboard: false
+    });
+}
+
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.key === 'w') {
         e.preventDefault();
-        location.reload(); // Returns to the boot menu
+        location.reload(); 
     }
 }, true);
 </script>
